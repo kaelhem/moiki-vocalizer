@@ -1,17 +1,36 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
+import React from 'react'
+import ReactDOM from 'react-dom'
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+import { Provider } from 'react-redux'
+import { PersistGate } from 'redux-persist/integration/react'
+import { ConnectedRouter } from 'connected-react-router'
+import configureStore, { history } from 'core/store'
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
+import App from './app'
+import './index.css'
+import 'semantic-ui-css/semantic.min.css'
+
+const { store, persistor } = configureStore()
+const render = Component => {
+  return ReactDOM.render(
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <ConnectedRouter history={history}>
+          <Component useSuspense={ false } />
+        </ConnectedRouter>
+      </PersistGate>
+    </Provider>,
+    document.getElementById('root')
+  )
+}
+
+render(App)
+
+if (process.env.NODE_ENV !== 'production') {
+  if (module.hot) {
+    module.hot.accept('./app', () => {
+      const NextApp = require('./app').default
+      render(NextApp)
+    })
+  }
+}

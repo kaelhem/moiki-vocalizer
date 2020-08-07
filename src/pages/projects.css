@@ -1,0 +1,42 @@
+.project-card {
+  width: 300px !important;
+  margin: 1em !important;
+}
+
+.project-card.ui.card > .image > img {
+  height: 225px;
+}
+
+.project-card.ui.card > .image > .cover {
+  display: block;
+  width: 300px;
+  height: 225px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+}
+
+.project-card .social-links {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+}
+
+.project-card .social-links div {
+  margin-bottom: 5px;
+}
+
+.project-card .social-links button {
+  border: 1px #fff solid;
+  color: #fff;
+  margin: 0;
+}
+
+.ui.pagination.menu a {
+  outline: none;
+}
+
+.ui.pagination.menu .active.item {
+  color: #fff;
+  background: #2185d1;
+}

@@ -1,13 +1,163 @@
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'Catamaran', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
+}
+
+a {
+  color: #0aa855 !important;
+  font-weight: bold;
+}
+
+a:hover {
+  color: #246b43 !important;
+}
+
+a.ui.button,
+a.ui.button:hover {
+  color: rgba(0, 0, 0, .6) !important;
+}
+
+.app .ui.green.button, .ui.green.buttons .button {
+  background-color: #06a955;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-header {
+  font-size: 1.5em;
+  padding: .5em;
+  background-color: #06a955;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.app-footer {
+  font-size: 1em;
+  padding: .3em;
+  background-color: #06a955;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.app-columns {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  flex-grow: 1;
+}
+
+.app-sidebar {
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+  background: #eee;
+}
+
+.app-sidebar .ui.vertical.text.menu .item {
+  height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.content {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.export-buttons {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+}
+
+.export-buttons .image > img {
+  height: 160px;
+}
+
+.export-buttons .image > .cover {
+  display: block;
+  height: 160px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+}
+
+.export-buttons h2 {
+  margin: 0.2em 0 0 0;
+  width: 300px;
+}
+
+.export-buttons .ui.button,
+.export-buttons .ui.fluid.dropdown {
+  margin-bottom: 5px;
+  margin-right: 0;
+}
+
+.dropzone {
+  border: 2px #06a955 solid;
+  border-radius: 1em;
+  color: #06a955;
+  margin: 3em auto;
+  padding: 1em;
+  font-size: 1.5em;
+  width: 600px;
+  height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+  text-align: center;
+}
+
+.fork-me-on-github {
+  top: 40px !important;
+}
+
+.zip-warning {
+  position: absolute;
+  background: rgb(204, 204, 204);
+  color: rgb(51, 51, 51);
+  padding: 1em;
+  bottom: 20px;
+  font-size: .9em;
+  text-align: center;
+  left: 0;
+  right: 0;
+}
+
+.ui.red.segment.error-message {
+  position: absolute;
+  top: 70px;
+  width: 500px;
+  text-align: center;
+  left: 0;
+  right: 0;
+  margin: auto;
+  z-index: 100;
 }

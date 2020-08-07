@@ -1,26 +1,31 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from 'react'
+import { connect } from 'react-redux'
+import { Route, Switch, Redirect } from 'react-router-dom'
+import Layout from 'containers/layout'
+import { Loader } from 'semantic-ui-react'
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+// pages
+import Home from './pages/home'
+import VocalizeStory from './pages/vocalize-story'
+import Projects from './pages/projects'
+
+const App = ({ isReady }) => {
+  return isReady ? (
+    <Layout>
+      <Switch>
+        <Route exact path="/" component={ Home } />
+        <Route path="/projects" component={ Projects } />
+        <Route path="/story" component={ VocalizeStory } />
+        <Redirect to="/" />
+      </Switch>
+    </Layout>
+  ) : (
+    <Loader active={true} />
+  )
 }
 
-export default App;
+const mapStateToProps = (state) => ({
+  isReady: state.app.ready
+})
+
+export default connect(mapStateToProps)(App)

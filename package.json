@@ -2,19 +2,74 @@
   "name": "moiki-vocalizer",
   "version": "0.1.0",
   "private": true,
+  "author": {
+    "name": "Kaelhem",
+    "email": "moiki.bot@gmail.com",
+    "url": "https://moiki.fr"
+  },
+  "homepage": "./",
+  "main": "public/electron.js",
+  "scripts": {
+    "start": "rescripts start",
+    "build": "rescripts build",
+    "test": "rescripts test",
+    "dev": "concurrently \"BROWSER=none yarn start\" \"wait-on http://localhost:3000 && electron .\"",
+    "postinstall": "electron-builder install-app-deps",
+    "preelectron-pack": "yarn build",
+    "electron-pack": "electron-builder build -mwl"
+  },
   "dependencies": {
+    "@matuschek/react-mic": "^1.2.2",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
+    "arraybuffer-to-buffer": "^0.0.7",
+    "connected-react-router": "^6.8.0",
+    "data-uri-to-buffer": "^3.0.1",
+    "datauri": "^3.0.0",
+    "electron-is-dev": "^1.2.0",
+    "electron-store": "^6.0.0",
+    "ffbinaries": "^1.1.4",
+    "ffmpeg-static-electron-react": "^1.0.5",
+    "fluent-ffmpeg": "^2.1.2",
+    "history": "^4.9.0",
+    "image-data-uri": "^2.0.1",
+    "jimp": "^0.14.0",
+    "jszip": "^3.5.0",
+    "jszip-utils": "^0.1.0",
+    "lamejs": "^1.2.0",
+    "lodash.clonedeep": "^4.5.0",
+    "lodash.kebabcase": "^4.1.1",
+    "moiki-exporter": "^0.1.4",
+    "moment": "^2.27.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-scripts": "3.4.1"
+    "react-dropzone": "^11.0.2",
+    "react-redux": "^7.2.0",
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "3.4.1",
+    "react-textarea-autosize": "^8.2.0",
+    "react-use-audio-player": "^0.0.18",
+    "redux": "^4.0.5",
+    "redux-combine-actions": "^0.1.2",
+    "redux-electron-ipc": "^1.2.0",
+    "redux-persist": "^6.0.0",
+    "redux-persist-electron-storage": "^2.1.0",
+    "redux-saga": "^1.1.3",
+    "save-svg-as-png": "^1.4.17",
+    "semantic-ui-css": "^2.4.1",
+    "semantic-ui-react": "^0.88.2",
+    "sharp": "^0.25.4",
+    "speech-synthesis-recorder": "^1.2.1"
   },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+  "devDependencies": {
+    "@rescripts/cli": "^0.0.14",
+    "@rescripts/rescript-env": "^0.0.12",
+    "concurrently": "^5.2.0",
+    "electron": "^9.1.0",
+    "electron-builder": "^22.7.0",
+    "electron-devtools-installer": "^3.1.1",
+    "wait-on": "^5.0.1"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -30,5 +85,23 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "build": {
+    "appId": "com.moiki.moiki-vocalizer",
+    "productName": "MoikiVocalizer",
+    "copyright": "Copyright © 2020 ${author}",
+    "mac": {
+      "category": "public.app-category.utilities",
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "L'accès au microphone est requis pour crééer des enregistrements audio."
+      }
+    },
+    "files": [
+      "build/**/*",
+      "node_modules/**/*"
+    ],
+    "directories": {
+      "buildResources": "assets"
+    }
   }
 }
