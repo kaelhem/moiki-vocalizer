@@ -9,7 +9,11 @@ import { LOCATION_CHANGE, push as navigateTo, getLocation } from 'connected-reac
 export function *setup() {
   yield take('persist/REHYDRATE')
   yield put(ipcSend('ffmpeg-download'))
-  yield take('ffmpeg-ready')
+  const {payload} = yield take('ffmpeg-ready')
+  const [error] = payload
+  if (error) {
+    console.log('Cannot retrieve ffmpeg binaries. Please reload.')
+  }
   yield put(appMesages.ready())
 }
 

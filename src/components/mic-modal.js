@@ -5,7 +5,6 @@ import SpeechSynthesisRecorder from 'libs/speech-synthesis-recorder'
 import { AudioPlayerProvider } from 'react-use-audio-player'
 import AudioPlayer from 'components/audio-player'
 import { Button, Modal, Label } from 'semantic-ui-react'
-import kebabCase from 'lodash.kebabcase'
 
 let isSpeechSynthesis = false
 
@@ -18,14 +17,16 @@ export const MicModal = ({ story, sequence, onClose, automaticVocalization, onLo
   useEffect(() => {
     let cancelled = false
 
-    ipc.on('ffmpeg-convert-complete', (event, res) => {
+    const onConvertComplete = (event, res) => {
+      ipc.removeListener('ffmpeg-convert-complete', onConvertComplete)
       if (!cancelled) {
         setIsConverting(false)
-        console.log('ffmpeg-convert-complete - automaticVocalization: ' + automaticVocalization)
         isSpeechSynthesis = false
         onLoadNextSequence()
       }
-    })
+    }
+
+    ipc.on('ffmpeg-convert-complete', onConvertComplete)
 
     return () => {
       cancelled = true
@@ -68,10 +69,10 @@ export const MicModal = ({ story, sequence, onClose, automaticVocalization, onLo
     new SpeechSynthesisRecorder({
       text: sequence.content, 
       utteranceOptions: {
-        voice: "Thomas", //"Amelie",
-        lang: "fr-FR", //"fr-CA",
-        pitch: .75,
-        rate: 1.2,
+        voice: "Amelie", //"Thomas",
+        lang: "fr-CA", //"fr-FR",
+        pitch: .8,
+        rate: 1.05,
         volume: 2
       }
     }).start()

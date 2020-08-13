@@ -4,12 +4,6 @@ import { getLocation } from 'connected-react-router'
 import { Link } from 'react-router-dom'
 import { Menu, Icon } from 'semantic-ui-react'
 
-const entries = [
-  {icon: 'home', uid: '/', htmlId: 'btHome'},
-  {name: 'Projets', icon: 'th', uid: '/projects', htmlId: 'btStories'},
-  {name: 'Histoire', icon: 'book', uid: '/story', htmlId: 'btStory'}
-]
-
 const MenuItem = ({name, icon, img, padding, uid, htmlId, activePath, imgStyle={}}) => {
   const active = uid === activePath
   return (
@@ -34,6 +28,13 @@ const MenuItem = ({name, icon, img, padding, uid, htmlId, activePath, imgStyle={
 }
 
 const AppMenu = ({ story, activePath }) => {
+  const entries = [
+    {icon: 'home', uid: '/', htmlId: 'btHome'},
+    {name: 'Projets', icon: 'th', uid: '/projects', htmlId: 'btStories'},
+  ]
+  if (story) {
+    entries.push({name: 'Histoire', icon: 'book', uid: '/story', htmlId: 'btStory'})
+  }
   return (
     <Menu text style={{ margin: 'auto 0.5em', height: '100%' }} vertical>
       { entries && entries.map((item, idx) => (

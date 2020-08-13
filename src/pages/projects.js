@@ -16,12 +16,15 @@ const Projects = (props) => {
     getList,
     importPending,
     importError,
-    importStory
+    importStory,
+    loadStory
   } = props
 
   useEffect(() => {
     getList()
   }, [])
+
+  console.log(projects)
 
   return (
     <Fragment>
@@ -55,7 +58,7 @@ const Projects = (props) => {
         ) : (
           <div style={{ justifyContent: 'center', display: 'flex', flexWrap: 'wrap' }}>
             { projects && projects.length > 0 ? projects.map((project, idx) => (
-              <Card key={'project-' + idx} className="project-card">
+              <Card key={'project-' + idx} className="project-card" onClick={() => loadStory(project.folderName)}>
                 { project.cover ? (
                   <Image style={{maxHeight: 225, overflow: 'hidden'}} wrapped ui={false}>
                     <div className='cover' style={{ backgroundImage: 'url(' + project.cover + ')' }} />
@@ -91,7 +94,8 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
   getList: bindActionCreators(projectsActions.getList, dispatch),
-  importStory: bindActionCreators(storyActions.import, dispatch)
+  importStory: bindActionCreators(storyActions.import, dispatch),
+  loadStory: bindActionCreators(storyActions.load, dispatch)
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Projects)

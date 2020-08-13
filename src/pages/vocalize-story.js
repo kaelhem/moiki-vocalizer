@@ -6,10 +6,7 @@ import SequenceVocalizer from 'components/sequence-vocalizer'
 import { MicModal } from 'components/mic-modal'
 import { Button } from 'semantic-ui-react'
 
-import kebabCase from 'lodash.kebabcase'
-import JSZip from 'jszip'
-
-const VocalizeStory = ({ story, clearStory }) => {
+const VocalizeStory = ({ story, clearStory, exportToStudio, pendingExport }) => {
   const [currentNode, setcurrentNode] = useState(null)
   const [automaticVocalization, setAutomaticVocalization] = useState(false)
 
@@ -19,17 +16,6 @@ const VocalizeStory = ({ story, clearStory }) => {
 
   const closeMicModal = () => {
     setcurrentNode(null)
-  }
-
-  const exportStudio = async () => {
-    const filename = kebabCase(story.meta.name)
-    const zip = new JSZip()
-    zip.file(filename + '.json', JSON.stringify(story, null, 4))
-    const blob = await zip.generateAsync({type: 'blob'})
-    const element = document.createElement("a")
-    element.href = URL.createObjectURL(blob)
-    element.download = filename + '.zip'
-    element.click()
   }
 
   const generateAllSounds = () => {
@@ -54,9 +40,9 @@ const VocalizeStory = ({ story, clearStory }) => {
     <div style={{ display: 'flex', flexDirection: 'column', padding: 30 }}>
       <div className="module-header">
         <div>
-          <Button onClick={clearStory}>Fermer</Button>
-          <Button onClick={generateAllSounds}>TTS generation...</Button>
-          <Button onClick={exportStudio}>Export to STUdio</Button>
+          <Button disabled={pendingExport} onClick={clearStory}>Fermer</Button>
+          <Button disabled={pendingExport} onClick={generateAllSounds}>TTS generation...</Button>
+          <Button disabled={pendingExport} loading={pendingExport} onClick={exportToStudio}>Export to STUdio</Button>
           { automaticVocalization ? ' true ' : ' false ' }
         </div>
       </div>
@@ -82,11 +68,13 @@ const VocalizeStory = ({ story, clearStory }) => {
 }
 
 const mapStateToProps = (state) => ({
-  story: state.story.story
+  story: state.story.story,
+  pendingExport: state.story.pendingExport
 })
 
 const mapDispatchToProps = (dispatch) => ({
-  clearStory: bindActionCreators(storyActions.clear, dispatch)
+  clearStory: bindActionCreators(storyActions.clear, dispatch),
+  exportToStudio: bindActionCreators(storyActions.exportToStudio, dispatch)
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(VocalizeStory)

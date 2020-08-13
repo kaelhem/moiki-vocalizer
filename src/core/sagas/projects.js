@@ -7,7 +7,10 @@ export function *listSaga() {
   yield put(ipcSend('get-projects-list'))
   const { payload } = yield take('projects-list')
   try {
-    const [projects] = payload
+    const [error, projects] = payload
+    if (error) {
+      throw error
+    }
     yield put(projectsMessages.listSuccess(projects))
   } catch (e) {
     yield put(projectsMessages.listError(e))

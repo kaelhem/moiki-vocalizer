@@ -27,11 +27,13 @@
     "connected-react-router": "^6.8.0",
     "data-uri-to-buffer": "^3.0.1",
     "datauri": "^3.0.0",
+    "electron-dl": "^3.0.2",
     "electron-is-dev": "^1.2.0",
     "electron-store": "^6.0.0",
     "ffbinaries": "^1.1.4",
     "ffmpeg-static-electron-react": "^1.0.5",
     "fluent-ffmpeg": "^2.1.2",
+    "fs-extra": "^9.0.1",
     "history": "^4.9.0",
     "image-data-uri": "^2.0.1",
     "jimp": "^0.14.0",
@@ -46,6 +48,7 @@
     "react-dom": "^16.13.1",
     "react-dropzone": "^11.0.2",
     "react-redux": "^7.2.0",
+    "react-redux-toastr": "^7.6.5",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.1",
     "react-textarea-autosize": "^8.2.0",
@@ -60,7 +63,8 @@
     "semantic-ui-css": "^2.4.1",
     "semantic-ui-react": "^0.88.2",
     "sharp": "^0.25.4",
-    "speech-synthesis-recorder": "^1.2.1"
+    "speech-synthesis-recorder": "^1.2.1",
+    "uuid": "^8.3.0"
   },
   "devDependencies": {
     "@rescripts/cli": "^0.0.14",

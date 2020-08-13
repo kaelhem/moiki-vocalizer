@@ -69,9 +69,12 @@ const importStory = async (event, zipData) => {
     }
     const data = JSON.parse(fileContent)
     const folderName = kebabCase(data.meta.name) + '-' + new Date().getTime()
-
     const folderPath = getOrCreatePath(folderName)
-    const coverFilePath = path.join(folderPath, 'cover.jpg')
+
+    // store rawData
+    fs.writeFileSync(path.join(folderPath, 'raw-data.json'), fileContent)
+
+    const coverFilePath = path.join(folderPath, 'cover.png')
 
     // generate cover
     if (data.meta.image) {
@@ -93,11 +96,6 @@ const importStory = async (event, zipData) => {
       }
     }
 
-    const { assets } = data
-    let variables = {}
-    for (let asset of assets) {
-      variables[asset.id] = asset
-    }
     const sequences = data.sequences.map(seq => ({
       ...seq,
       content: cleanContent(seq.content),
@@ -119,28 +117,31 @@ const importStory = async (event, zipData) => {
       }
     })
 
+    for (let {label, desc} of data.assets) {
+      nodes.push({id: kebabCase(label) + '_obj', content: desc})
+    }
+
     data.projectInfo = {
       folderName,
       creationDate: new Date(),
       title: data.meta.name,
       numNodes: nodes.length,
-      numIcons: variables.length
+      numIcons: data.assets.length
     }
 
-    const infoFilePath = path.join(folderPath, 'info.json')
-    let infoData = data.projectInfo
+    const project = {...data, nodes, sequences, originalSequences: data.sequences}
+
+    const projectFilePath = path.join(folderPath, 'project.json')
     if (data.meta.image) {
       const coverDataUri = await datauri(coverFilePath)
-      infoData = {...data.projectInfo, cover: coverDataUri}      
+      project.cover = coverDataUri
     }
-    fs.writeFileSync(infoFilePath, JSON.stringify(infoData, null, 4))
-
-    const project = {...data, variables, nodes, sequences, originalSequences: data.sequences}
-    event.sender.send('IPC_REDUX_MESSAGE', 'project-created', project)
+    fs.writeFileSync(projectFilePath, JSON.stringify(project, null, 4))
+    event.sender.send('IPC_REDUX_MESSAGE', 'project-created', null, project)
   } catch (e) {
     console.log('error !')
     console.log(e.message)
-    event.sender.send('IPC_REDUX_MESSAGE', 'project-created-error', e)
+    event.sender.send('IPC_REDUX_MESSAGE', 'project-created', e)
   }
 }
 
