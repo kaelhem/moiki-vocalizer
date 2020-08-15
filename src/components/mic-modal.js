@@ -69,10 +69,10 @@ export const MicModal = ({ story, sequence, onClose, automaticVocalization, onLo
     new SpeechSynthesisRecorder({
       text: sequence.content, 
       utteranceOptions: {
-        voice: "Amelie", //"Thomas",
-        lang: "fr-CA", //"fr-FR",
-        pitch: .8,
-        rate: 1.05,
+        voice: "Thomas", // "Amelie",
+        lang: "fr-FR", // "fr-CA",
+        pitch: .75, // 0.8
+        rate: 1.2, // 1.05
         volume: 2
       }
     }).start()

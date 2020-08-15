@@ -13,7 +13,7 @@ const ffmpeg = require('./ffmpeg')
 
 const exportToStudio = async (event, story) => {
   try {
-    const { sequencesDescriptor, uuidSequencesMap, sequences } = studioConverter(story)
+    const { sequencesDescriptor, uuidSequencesMap, sequences, variables } = studioConverter(story)
 
     const tempMergePath = path.join(PROJECT_PATH, story.projectInfo.folderName, 'temp-merge', 'sounds')
     if (fs.existsSync(tempMergePath)) {
@@ -27,6 +27,13 @@ const exportToStudio = async (event, story) => {
     } else {
       fs.mkdirSync(finalMergePath, {recursive: true})  
     }
+
+    let objectSfxPath = path.join(__dirname, '..', '..', 'assets', 'object-sfx.mp3')
+    if (story.theme && story.theme.styles && story.theme.styles.sfx && story.theme.styles.sfx.objectWin && story.theme.styles.sfx.objectWin.sound) {
+      const snd = story.sounds.find(x => x.id === story.theme.styles.sfx.objectWin.sound)
+      objectSfxPath = path.join(PROJECT_PATH, story.projectInfo.folderName, snd.sound.localFile)
+    }
+    
     event.sender.send('IPC_REDUX_MESSAGE', 'story-export-status', 1)
     // merging vocals with effects
     const vocalsCopyFolder = path.join(PROJECT_PATH, story.projectInfo.folderName, 'vocals-copy')
@@ -81,6 +88,9 @@ const exportToStudio = async (event, story) => {
         }
         const newUUID = uuid.v4()
         concatenateVocals[node.list.join(',')] = newUUID
+        if (node.action) {
+          files.push(objectSfxPath)
+        }
         await new Promise(resolve => ffmpeg.concatSounds(files, path.join(story.projectInfo.folderName, 'temp'), newUUID + '.mp3', resolve))
       }
     }
@@ -159,7 +169,7 @@ const exportToStudio = async (event, story) => {
       }
     }*/
 
-    const studioData = createJson(story, { sequencesDescriptor, uuidSequencesMap, sequences })
+    const studioData = createJson(story, { sequencesDescriptor, uuidSequencesMap, sequences, variables })
 
     event.sender.send('IPC_REDUX_MESSAGE', 'story-export-status', 4)
     const zip = new JSZip()
@@ -178,9 +188,9 @@ const exportToStudio = async (event, story) => {
     }
     // copy assets images
     for (let asset of story.assets) {
-      const imgPath = path.join(PROJECT_PATH, story.projectInfo.folderName, 'images', 'bmp', kebabCase(asset.label) + '.bmp')
+      const imgPath = path.join(PROJECT_PATH, story.projectInfo.folderName, 'images', 'png-invert', kebabCase(asset.label) + '.png')
       if (fs.existsSync(imgPath)) {
-        zip.file('assets/' + kebabCase(asset.label) + '_obj.bmp', fs.readFileSync(imgPath))
+        zip.file('assets/' + kebabCase(asset.label) + '_obj.png', fs.readFileSync(imgPath))
       }
     }
 
@@ -208,6 +218,9 @@ const exportToStudio = async (event, story) => {
       for (let file of extraSoundsFiles) {
         zip.file('assets/' + file, fs.readFileSync(path.join(vocalsFolder, file)))
       }
+    }
+    if (fs.existsSync(objectSfxPath)) {
+      zip.file('assets/object-sfx.mp3', fs.readFileSync(objectSfxPath))
     }
 
     const tempZipPath = path.join(DOWNLOADS_PATH, 'export-studio-' + new Date().getTime() + '.zip')

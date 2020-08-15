@@ -33,7 +33,7 @@ const getOrCreatePath = (...pathParts) => {
 const generateAssetFiles = async (storyData, folderName) => {
   const svgFolder = getOrCreatePath(folderName, 'images', 'svg')
   const pngFolder = getOrCreatePath(folderName, 'images', 'png')
-  const bmpFolder = getOrCreatePath(folderName, 'images', 'bmp')
+  const pngInvertFolder = getOrCreatePath(folderName, 'images', 'png-invert')
 
   for (let asset of storyData.assets) {
     try {
@@ -44,9 +44,10 @@ const generateAssetFiles = async (storyData, folderName) => {
       const pngBuffer = await sharp(Buffer.from(svgString), { density: 450 }).png().toBuffer()
       fs.writeFileSync(pngFilePath, pngBuffer)
       asset.pngIcon = await datauri(pngFilePath)
+      const blackBg = new jimp(320, 240, 'black')
       const image = await jimp.read(pngBuffer)
-      const bmpFilePath = path.join(bmpFolder, kebabCase(asset.label) + '.bmp')
-      await image.contain(320, 240).invert().writeAsync(bmpFilePath)
+      const pngInvertFilePath = path.join(pngInvertFolder, kebabCase(asset.label) + '.png')
+      await blackBg.blit(image.contain(320, 240).invert(), 0, 0).writeAsync(pngInvertFilePath)
     } catch (e) {
       console.log(e.message)
     }

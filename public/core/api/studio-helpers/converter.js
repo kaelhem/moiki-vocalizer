@@ -122,9 +122,7 @@ module.exports = (story) => {
     }
 
     const copySequence = {...clonedeep(sequence), listObjects: [...listObjects], uuid: currentUuid}
-    //if (!newSequences.find(x => x.uuid === currentUuid)) {
-      newSequences.push(copySequence)
-    //}
+    newSequences.push(copySequence)
     storyPath.push(key)
     history.push(currentUuid)
     let objects = [...listObjects]
@@ -140,8 +138,8 @@ module.exports = (story) => {
       lastChain = ch
     }
     objects.sort((a, b) => b - a)
-    //const links = getLinksForSequence(lastChain)
-    //-------
+
+    lastChain.listObjects = [...objects]
     if (lastChain.next) {
       if (lastChain.condition && lastChain.condition.params && objects.includes(lastChain.condition.params)) {
         lastChain.next = lastChain.condition.next
@@ -149,7 +147,6 @@ module.exports = (story) => {
       if (lastChain.condition) {
         delete lastChain.condition
       }
-      lastChain.listObjects = [...objects]
       removeConditions(sequences.find(({id}) => id === lastChain.next), [...objects], [...storyPath], [...history])
     } else if (lastChain.choices && lastChain.choices.length > 0) {
       for (choice of lastChain.choices) {
@@ -173,74 +170,8 @@ module.exports = (story) => {
     } else {
       allPaths[storyPath.join(',')] = { data: history, path: storyPath }
     }
-
-    // ------
-    /*
-    if ((lastChain && lastChain.final) || links.length === 0) {
-      allPaths[storyPath.join(',')] = {data: history, path: storyPath}
-    } else {
-      for (let nextNode of links) {
-        const choiceMarker = nextNode.kind === 'choice' ? ['CHOIX'] : []
-        let objects = [...newObjects]
-        if (nextNode.action && nextNode.action.params && nextNode.kind !== 'simple') {
-          if (objects.includes(nextNode.action.params)) {
-            objects = objects.filter(x => x !== nextNode.action.params)
-          } else {
-            objects.push(nextNode.action.params)
-          }
-          objects.sort((a, b) => b - a)
-        }
-        copySequence.chain[copySequence.chain.length - 1].listObjects = objects
-        if (nextNode.condition) {
-          if (newObjects.includes(nextNode.condition)) {
-            if (nextNode.kind === 'simple') {
-              copySequence.chain[copySequence.chain.length - 1].next = nextNode.next
-              delete copySequence.chain[copySequence.chain.length - 1].condition
-            } else if (nextNode.choiceIndex) {
-              const { choices } = copySequence.chain[copySequence.chain.length - 1]
-              choices[nextNode.choiceIndex].next = nextNode.next
-              delete choices[nextNode.choiceIndex].condition
-            }
-          } else {
-            if (nextNode.kind === 'simple') {
-              delete copySequence.chain[copySequence.chain.length - 1].condition
-            } else if (nextNode.choiceIndex) {
-              const { choices } = copySequence.chain[copySequence.chain.length - 1]
-              delete choices[nextNode.choiceIndex].condition
-            }
-          }
-        }
-        removeConditions(sequences.find(({id}) => id === nextNode.next), [...objects], [...storyPath, ...choiceMarker], [...history])
-      }
-      */
-    //}
   }
   removeConditions(sequences.find(({id}) => id === story.firstSequence))
-  /*
-  console.log('countNodes = ' + countNodes)
-  const allHistories = Object.entries(allPaths).map(([_, value]) => value)
-
-  console.log('num cycles: ' + cycles.length)
-  
-  const uniqueSeqMap = new Map()
-  for (let history of allHistories) {
-    for (let seq of history.data) {
-      uniqueSeqMap.set(seq.id + '-' + seq.listObjects.join(','), seq)
-    }
-  }
-  const uniqueSeq = Array.from(uniqueSeqMap).map(([key, value]) => value)
-  console.log('Unique sequences: ' + uniqueSeq.length)
-  let numVariantes = 0
-  for (let seq of sequences) {
-    const variantes = uniqueSeq.filter(x => x.id === seq.id)
-    if (variantes.length > 0) {
-      console.log('=== ' + seq.id + ' === (' + variantes.length + ')')
-      console.log(variantes.map(v => v.listObjects.join(',')).join('\n'))
-      ++numVariantes
-    }
-  }
-  console.log('numVariantes = ' + numVariantes)
-  */
   
   const allPathsArray = Object.keys(allPaths)
   const allChains = {}
@@ -253,7 +184,20 @@ module.exports = (story) => {
       if (chain.charAt(chain.length - 1) === ',') {
         chain = chain.slice(0, chain.length - 1)
       }
-      allChains[chain] = true
+      //allChains[chain] = true
+
+      const listSeq = chain.split(',')
+      let currentList = []
+      for (let seq of listSeq) {
+        currentList.push(seq)
+        if (seq.action) {
+          allChains[currentList.join(',')] = true
+          currentList = []
+        }
+      }
+      if (currentList.length > 0) {
+        allChains[currentList.join(',')] = true
+      }
     }
   }
 
@@ -307,56 +251,58 @@ module.exports = (story) => {
         }
       }
     }
-    console.log('chainToSimplify = ' + numSimplified)
-    /*
-    console.log('chainToSimplify = ' + numSimplified + ' / ' + newSequences.length)
-    let deletedSeq = 0
-    for (let maybeUselessSeq of maybeUseless) {
-      let shouldDelete = true
-      for (let newSeq of newSequences) {
-        const lastChain = newSeq.chain[newSeq.chain.length - 1]
-        if (lastChain.choices && lastChain.choices.length > 0) {
-          for (let c of lastChain.choices) {
-            if (getSequenceKey(c.next, c.listObjects) === maybeUselessSeq) {
-              shouldDelete = false
-            }
-          }
-        } else {
-          if (getSequenceKey(lastChain.next, lastChain.listObjects) === maybeUselessSeq) {
-            shouldDelete = false
-          }
-        }
-      }
-      if (shouldDelete) {
-        ++deletedSeq
-        const key = uuidMap.get(maybeUselessSeq)
-        newSequences = newSequences.filter(s => s.uuid !== key)
-      }
-    }
-    console.log('deleted sequences = ' + deletedSeq)
-    */
+    console.log('chains simplified = ' + numSimplified)
   } while (numSimplified > 0)
 
   const uniqueSequenceArray = checkTree(newSequences, newSequences.find(x => x.id === story.firstSequence), uuidMap)
-  //console.log(uniqueSequenceArray)
-  /*
-  console.log(uniqueSequenceArray.map(s => {
-    const lastChain = s.chain[s.chain.length - 1]
-    const choices = (lastChain.choices || []).map(c => {
-      const UUID = uuidMap.get(getSequenceKey(c.next, c.listObjects))
-      return `\n\t-> ${c.next} (${UUID})`
-    })
-    const final = lastChain.final ? `\n\t-> END` : ''
-    return `${s.id} (${s.uuid})${choices}${final}`
-  }).join('\n'))
-  */
+  if (newSequences.length !== uniqueSequenceArray.length) {
+    console.log('removed ' + (newSequences.length - uniqueSequenceArray.length) + ' unusued sequences') 
+  }
 
-  const oldLength = newSequences.length
-  newSequences = uniqueSequenceArray
-  console.log('removed ' + (oldLength - newSequences.length) + ' unusued sequences') 
+  // cut sequences when win / lose objects
+  const cutSequences = []
+  for (let seq of uniqueSequenceArray) {
+    const lastChain = seq.chain[seq.chain.length - 1]
+    let currentChain = []
+    let cutted = false
+    for (let item of seq.chain) {
+      currentChain.push(item)
+      if (item.action) {
+        item.listObjects = lastChain.listObjects
+        const cutSeqId = cutted ? currentChain[0].id : seq.id
+        const cutSeqObjects = cutted ? lastChain.listObjects : seq.listObjects
+        const cutSeq = getSequenceUUID(cutSeqId, cutSeqObjects)
+        cutSequences.push({
+          id: cutSeqId,
+          uuid: cutSeq.id,
+          listObjects: cutSeqObjects,
+          chain: currentChain
+        })
+        currentChain = []
+        cutted = true
+      }
+    }
+    if (!cutted) {
+      cutSequences.push(seq)
+    } else if (currentChain.length > 0) {
+      const [firstChain] = currentChain
+      const { id, key, isNew } = getSequenceUUID(firstChain.id, lastChain.listObjects)
+      cutSequences.push({
+        id: firstChain.id,
+        uuid: id,
+        listObjects: lastChain.listObjects,
+        chain: currentChain
+      })
+    }
+  }
 
+  const cutSequenceClean = checkTree(cutSequences, cutSequences.find(x => x.id === story.firstSequence), uuidMap)
+  if (cutSequences.length !== cutSequenceClean.length) {
+    console.log('removed ' + (cutSequences.length - cutSequenceClean.length) + ' unusued sequences') 
+  }
+  
   const soundsList = {}
-  const sequencesDescriptor = newSequences
+  const sequencesDescriptor = cutSequenceClean
     .map(seq => {
       const loops = seq.chain.map(ch => ch.soundLoop && ch.soundLoop.sound)
       let currentSound = null
@@ -371,6 +317,7 @@ module.exports = (story) => {
       soundsList[seq.chain.map(ch => ch.id).join(',')] = true
       return {
         id: seq.uuid,
+        action: seq.chain[seq.chain.length - 1].action,
         list: seq.chain.map(ch => ch.id),
         effects: seq.chain.map(ch => ch.soundSfx && ch.soundSfx.sound),
         loops
@@ -379,5 +326,5 @@ module.exports = (story) => {
 
   console.log('num soundsList = ' + Object.keys(soundsList).length)
 
-  return { sequencesDescriptor, uuidSequencesMap: uuidMap, sequences: newSequences }
+  return { sequencesDescriptor, uuidSequencesMap: uuidMap, sequences: cutSequenceClean, variables }
 }
