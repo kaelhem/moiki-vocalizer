@@ -1,6 +1,7 @@
-import React, { useState, Fragment } from 'react'
-//import { AudioPlayerProvider } from 'react-use-audio-player'
-//import AudioPlayer from 'components/audio-player'
+import React, { forwardRef, useImperativeHandle, useState, Fragment } from 'react'
+import { ipcRenderer as ipc } from 'electron'
+import { AudioPlayerProvider } from 'react-use-audio-player'
+import AudioPlayer from 'components/audio-player'
 import { Button, Segment, Label } from 'semantic-ui-react'
 
 const SequenceLabel = ({index, identifier}) => (
@@ -14,54 +15,85 @@ const SequenceLabel = ({index, identifier}) => (
   />
 )
 
-const SequenceVocalizer = ({ sequence, index, editSound }) => {
-  const [blobSound, setBlobSound] = useState(null)
-  /*
-  const onStart = () => {
-    if (onStartRecording) {
-      onStartRecording()
+const SequenceVocalizer = forwardRef((props, ref) => {
+  const {
+    sequence,
+    index,
+    hasSound,
+    folderName,
+    editSound
+  } = props
+
+  const [blobSoundURI, setBlobSoundURI] = useState(null)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [isLoadingSound, setIsLoadingSound] = useState(false)
+  const [autoplay, setAutoplay] = useState(false)
+
+  useImperativeHandle(ref, () => ({
+    updateSound: (blob) => {
+      setAutoplay(false)
+      setBlobSoundURI(URL.createObjectURL(blob))
     }
-  }
-  
-  const onData = () => {
-    console.log('is recording... (' + sequence.content + ')')
+  }))
+
+  const onSoundLoaded = (event, err, buffer) => {
+    ipc.removeListener('sound-file-loaded', onSoundLoaded)
+    if (err) {
+      console.log(err)
+    } else {
+      const blob = new Blob([buffer])
+      setAutoplay(true)
+      setBlobSoundURI(URL.createObjectURL(blob))
+    }
+    setIsLoadingSound(false)
   }
 
-  const onStop = (blob, blobURL=null) => {
-    setBlobSound({data: blob, uri: blobURL || URL.createObjectURL(blob)})
-    if (onStopRecording) {
-      onStopRecording()
-    }
-  }*/
+  const loadSound = () => {
+    setIsLoadingSound(true)
+    ipc.on('sound-file-loaded', onSoundLoaded)
+    ipc.send('load-sound-file', folderName, sequence.id + '.mp3')
+  }
 
-  /*const exportSound = () => {
-    const element = document.createElement("a")
-    element.href = blobSound.uri
-    element.download = "file.mp3"
-    element.click()
-  }*/
+  const onPlay = () => {
+    setIsPlaying(true)
+    if (!blobSoundURI && !isLoadingSound) {
+      loadSound()
+    }
+  }
+
+  const onStop = () => {
+    setIsPlaying(false)
+  }
 
   return (
     <div className="sequence-vocalizer" style={{ marginBottom: 10 }}>
       <Segment padded>
         <SequenceLabel index={index} identifier={sequence.id} />
         <div>{sequence.content}</div>
-        { /*blobSound && blobSound.uri && (
-          <AudioPlayerProvider>
-            <AudioPlayer file={blobSound.uri} />
-          </AudioPlayerProvider>
-        )*/}
         <div>
+          { (hasSound && blobSoundURI) ? (
+            <AudioPlayerProvider>
+              <AudioPlayer
+                file={blobSoundURI}
+                autoplay={autoplay}
+                onStop={onStop}
+              />
+            </AudioPlayerProvider>
+          ) : (
+            <Button
+              style={{ margin: 2 }} 
+              loading={isLoadingSound}
+              disabled={!hasSound}
+              icon={isPlaying ? "pause" : "play"}
+              primary={hasSound}
+              onClick={onPlay}
+            />
+          )}
           <Button negative onClick={() => editSound(sequence)}>Edit sound...</Button>
-          { /* blobSound && blobSound.uri && (
-            <Fragment>
-              <Button disabled={isPending} onClick={() => exportSound()}>export sound</Button>
-            </Fragment>
-          ) */}
         </div>
       </Segment>
     </div>
   )
-}
+})
 
 export default SequenceVocalizer

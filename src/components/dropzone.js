@@ -20,10 +20,10 @@ const Dropzone = ({ onDataLoaded, content }) => {
   const {getRootProps, getInputProps, isDragActive} = useDropzone({ onDrop })
 
   return (
-    <div className='dropzone' style={ isDragActive ? { background: '#99ddbb' } : {}} { ...getRootProps() }>
+    <div className='dropzone' style={ isDragActive ? { background: '#d3e3f3' } : {}} { ...getRootProps() }>
       <input { ...getInputProps() } />
       { content }
-      <p style={{ fontSize: '.7em', marginTop: 0 }}>(or click to browse)</p>
+      <p style={{ fontSize: '.7em', marginTop: 0 }}>(ou cliquez pour rechercher)</p>
     </div>
   )
 }

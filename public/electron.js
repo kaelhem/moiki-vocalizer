@@ -1,5 +1,5 @@
 const electron = require('electron')
-const { app, BrowserWindow } = electron
+const { app, BrowserWindow, shell } = electron
 
 const path = require('path')
 const isDev = require('electron-is-dev')
@@ -34,6 +34,13 @@ const createWindow = () => {
     console.log('isAllowed', isAllowed)
   })
   mainWindow.on('closed', () => mainWindow = null)
+
+  mainWindow.webContents.on('new-window', (event, url) => {
+    if (!url.match(/http:\/\/localhost.*/gi) && url.startsWith('http')) {
+      event.preventDefault()
+      shell.openExternal(url)
+    }
+  })
 }
 
 app.on('ready', async () => {

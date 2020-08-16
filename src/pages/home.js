@@ -1,50 +1,43 @@
 import React, { Fragment } from 'react'
-import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { actions as storyActions } from 'core/reducers/story'
-import Dropzone from 'components/dropzone'
-import { Segment, Divider, Loader } from 'semantic-ui-react'
+import { Segment, Divider, Loader, Header, Button, Image } from 'semantic-ui-react'
 
 const Home = (props) => {
-  const {
-    error,
-    pending,
-    importStory
-  } = props
-
   return (
     <Fragment>
-      { error && (
-        <Segment className="error-message" color='red'>
-          { error }
-        </Segment>
-      )}
-      <div style={{ textAlign: 'center' }}>
-        <p>This tool allows you to export stories made with <a href="https://moiki.fr" target="_blank" rel="noopener noreferrer">Moiki</a> in different formats.</p>
-        <a href="https://github.com/kaelhem/moiki-exporter" target="_blank" rel="noopener noreferrer"><em>Learn more about it</em></a>
-        <Divider />
-        { pending ? (
-          <div style={{ margin: '3em auto', padding: '1em', height: 200, display: 'flex', alignItems: 'center', fontSize: '1.5em' }}>
-            <Loader active={true} />
+      <div className="module-header" style={{ height: 240 }}>
+        <div style={{ paddingTop: 20, paddingBottom: 20, textAlign: 'center' }}>
+          <Header size="huge">Moiki Vocalizer</Header>
+          <Image src='./logo512.png' size='small' centered />
+        </div>
+      </div>
+      <div style={{ paddingTop: 240 }}>
+        <div style={{ textAlign: 'center' }}>
+          <p style={{ margin: '2em auto', fontSize: '1.2em', lineHeight: '1.2em' }}><b>Moiki Vocalizer</b> : transformez vos histoires faites avec <a href="https://moiki.fr" target="_blank" rel="noopener noreferrer">Moiki</a> en audio !</p>
+          <Button primary size="big" style={{ marginBottom: '2em' }}>Comment ça marche ?</Button>
+          <div style={{ textAlign: 'left', textAlign: 'left', display: 'flex', flexDirection: 'column', width: 500, margin: 'auto' }}>
+            <Divider horizontal>en bref</Divider>
+            <ul style={{ margin: '2em auto', marginTop: 0, fontSize: '1.2em', lineHeight: '1.2em' }}>
+              <li>enregistrements avec <b>micro</b> ou <b>synthèse vocale</b> 🎙️</li>
+              <li>conservation des <b>actions</b> et <b>conditions</b> ⚙️</li>
+              <li>conservation des <b>boucles</b> et <b>effets sonores</b> 🎵</li>
+              <li>export en html5 🔥</li>
+              <li>export vers <a href="https://github.com/marian-m12l/studio" target="_blank" rel="noopener noreferrer">STUdio</a>* 🎉</li>
+            </ul>
           </div>
-        ) : (
-          <Dropzone
-            onDataLoaded={ importStory }
-            content={<p>Drop your story as <em>.zip</em> here</p>}
-          />
-        )}
+          <Divider />
+          <em>* STUdio est un outil non-officiel pour créer des histoires et les transférer vers une <a href="https://www.lunii.fr/" target="_blank" rel="noopener noreferrer">Fabrique à histoires de Lunii</a></em>
+        </div>
       </div>
     </Fragment>
   )
 }
 
 const mapStateToProps = (state) => ({
-  error: state.story.error,
-  story: state.story.story,
-  pending: state.story.pending
+  
 })
 
 const mapDispatchToProps = (dispatch) => ({
-  importStory: bindActionCreators(storyActions.import, dispatch)
+  
 })
 export default connect(mapStateToProps, mapDispatchToProps)(Home)

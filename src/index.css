@@ -5,27 +5,29 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+*,
+.app .ui.header {
+  font-family: 'Catamaran', sans-serif;
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
 
 a {
-  color: #0aa855 !important;
+  color: #3399ee !important;
   font-weight: bold;
 }
 
-a:hover {
-  color: #246b43 !important;
+a:hover,
+.app .app-sidebar .item.active {
+  color: #4b7dbf !important;
 }
 
 a.ui.button,
 a.ui.button:hover {
   color: rgba(0, 0, 0, .6) !important;
-}
-
-.app .ui.green.button, .ui.green.buttons .button {
-  background-color: #06a955;
 }
 
 .app {
@@ -46,14 +48,15 @@ a.ui.button:hover {
 }
 
 .app-footer {
-  font-size: 1em;
-  padding: .3em;
-  background-color: #06a955;
+  font-size: 1.1em;
+  padding: .3em 0;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: #9a9a9a;
+  margin-bottom: 20px;
+  font-style: italic;
 }
 
 .app-columns {
@@ -119,14 +122,14 @@ a.ui.button:hover {
 }
 
 .dropzone {
-  border: 2px #06a955 solid;
+  border: 2px #3399ee solid;
   border-radius: 1em;
-  color: #06a955;
-  margin: 3em auto;
-  padding: 1em;
-  font-size: 1.5em;
+  color: #3399ee;
+  margin: 1em auto;
+  padding: .6em;
+  font-size: 1.2em;
   width: 600px;
-  height: 180px;
+  height: 100px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -160,4 +163,20 @@ a.ui.button:hover {
   right: 0;
   margin: auto;
   z-index: 100;
+}
+
+.module-header {
+  left: 250px;
+  right: 60px;
+  top: 0;
+  margin: 0 -1px;
+  background: #fff;
+  position: fixed;
+  z-index: 100;
+  height: 100px;
+  border-bottom: 1px #22242626 solid;
+}
+
+.module-header .ui.huge.header {
+  color: #4b7dbf;
 }

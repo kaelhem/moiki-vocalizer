@@ -66,9 +66,6 @@ const exportToStudio = async (event, story) => {
       if (!concatenateVocals[node.list.join(',')]) {
         const files = []
         for (let p of node.list) {
-          
-          // TODO : insert object here
-
           let filePath = path.join(PROJECT_PATH, story.projectInfo.folderName, 'vocals-copy' , p + '.mp3')
           if (!fs.existsSync(filePath)) {
             filePath = path.join(PROJECT_PATH, story.projectInfo.folderName, 'vocals' , p + '.mp3')
@@ -120,19 +117,25 @@ const exportToStudio = async (event, story) => {
             })
           }
           delay += soundsDuration[node.list[i]]
-          const lastLoop = loopsToMix[loopsToMix.length - 1]
-          if (!lastLoop.to && i === node.loops.length - 1) {
-            lastLoop.to = delay
+          if (loopsToMix.length > 0) {
+            const lastLoop = loopsToMix[loopsToMix.length - 1]
+            if (!lastLoop.to && i === node.loops.length - 1) {
+              lastLoop.to = delay
+            }
           }
         }
-        for (let loop of loopsToMix) {
-          const loopPath = path.join(tempMergePath, '..', loop.file)
-          const filePath = path.join(PROJECT_PATH, story.projectInfo.folderName, 'temp' , concatenateVocals[soundListKey] + '.mp3')
-          const finalFilePath = path.join(finalMergePath, concatenateVocals[soundListKey] + '.mp3')
-          const duration = loop.to - loop.from
-          await new Promise(resolve => ffmpeg.extractSound(path.join(PROJECT_PATH, story.projectInfo.folderName, loop.file), 0, duration, loopPath, resolve))        
-          await new Promise(resolve => ffmpeg.mergeSoundsWithDelay(filePath, loopPath, finalFilePath, Math.round(loop.from * 1000), resolve))
-          fs.copyFileSync(finalFilePath, filePath)
+        const filePath = path.join(PROJECT_PATH, story.projectInfo.folderName, 'temp' , concatenateVocals[soundListKey] + '.mp3')
+        const finalFilePath = path.join(finalMergePath, concatenateVocals[soundListKey] + '.mp3')
+        if (loopsToMix.length > 0) {
+          for (let loop of loopsToMix) {
+            const loopPath = path.join(tempMergePath, '..', loop.file)
+            const duration = loop.to - loop.from
+            await new Promise(resolve => ffmpeg.extractSound(path.join(PROJECT_PATH, story.projectInfo.folderName, loop.file), 0, duration, loopPath, resolve))        
+            await new Promise(resolve => ffmpeg.mergeSoundsWithDelay(filePath, loopPath, finalFilePath, Math.round(loop.from * 1000), resolve))
+            fs.copyFileSync(finalFilePath, filePath)
+          }
+        } else {
+          fs.copyFileSync(filePath, finalFilePath)
         }
         event.sender.send('IPC_REDUX_MESSAGE', 'story-export-status', 3, 'Séquences assemblées ' + count + '/' + concatenateVocalsArray.length)
         ++count

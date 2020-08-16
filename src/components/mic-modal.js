@@ -7,31 +7,62 @@ import AudioPlayer from 'components/audio-player'
 import { Button, Modal, Label } from 'semantic-ui-react'
 
 let isSpeechSynthesis = false
+let cancelled = false
 
-export const MicModal = ({ story, sequence, onClose, automaticVocalization, onLoadNextSequence, onStopAutomaticVocalization }) => {
+export const MicModal = (props) => {
+  const {
+    story,
+    sequence,
+    onClose,
+    automaticVocalization,
+    onLoadNextSequence,
+    onStopAutomaticVocalization,
+    onSequenceUpdated
+  } = props
+
   const [isRecording, setIsRecording] = useState(false)
-  const [blobSound, setBlobSound] = useState(null)
+  const [blobSoundURI, setBlobSoundURI] = useState(null)
   const [isConverting, setIsConverting] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [isLoadingSound, setIsLoadingSound] = useState(false)
+
+  const onSoundLoaded = (event, err, buffer) => {
+    ipc.removeListener('sound-file-loaded', onSoundLoaded)
+    if (err) {
+      console.log(err)
+    } else {
+      const blob = new Blob([buffer])
+      setBlobSoundURI(URL.createObjectURL(blob))
+    }
+    setIsLoadingSound(false)
+  }
+
+  const loadSound = () => {
+    setIsLoadingSound(true)
+    ipc.on('sound-file-loaded', onSoundLoaded)
+    ipc.send('load-sound-file', story.projectInfo.folderName, sequence.id + '.mp3')
+  }
 
   useEffect(() => {
-    let cancelled = false
-
-    const onConvertComplete = (event, res) => {
-      ipc.removeListener('ffmpeg-convert-complete', onConvertComplete)
-      if (!cancelled) {
-        setIsConverting(false)
-        isSpeechSynthesis = false
-        onLoadNextSequence()
-      }
+    cancelled = false
+    if (sequence && sequence.hasSound) {
+      loadSound()
     }
-
-    ipc.on('ffmpeg-convert-complete', onConvertComplete)
-
     return () => {
       cancelled = true
+      ipc.removeListener('sound-file-loaded', onSoundLoaded)
     }
-  }, [automaticVocalization, onLoadNextSequence])
+  }, [sequence])
+
+  const onConvertComplete = () => {
+    ipc.removeListener('ffmpeg-convert-complete', onConvertComplete)
+    if (!cancelled) {
+      sequence.hasSound = true
+      setIsConverting(false)
+      isSpeechSynthesis = false
+      onLoadNextSequence()
+    }
+  }
 
   useEffect(() => {
     if (automaticVocalization && sequence) {
@@ -52,11 +83,14 @@ export const MicModal = ({ story, sequence, onClose, automaticVocalization, onLo
     setIsRecording(false)
     setIsConverting(true)
     console.log('converting... tts ? ' + isSpeechSynthesis)
-    setBlobSound({data: blob, uri: blobURL || URL.createObjectURL(blob)})
+    setBlobSoundURI(blobURL || URL.createObjectURL(blob))
+    
+    onSequenceUpdated && onSequenceUpdated(sequence, blob)
     
     const { folderName } = story.projectInfo
     const fileName = sequence.id
     const ab = await blob.arrayBuffer()
+    ipc.on('ffmpeg-convert-complete', onConvertComplete)
     ipc.send('ffmpeg-convert-webm2mp3', ab, folderName, fileName)
   }
 
@@ -116,10 +150,10 @@ export const MicModal = ({ story, sequence, onClose, automaticVocalization, onLo
             />
             { !automaticVocalization && (
               <div style={{ display: 'flex', marginTop: 15 }}>
-                { blobSound && blobSound.uri && (
+                { blobSoundURI && (
                   <AudioPlayerProvider>
                     <AudioPlayer
-                      file={blobSound.uri}
+                      file={blobSoundURI}
                       disabled={isRecording || isConverting}
                       onPlay={() => setIsPlaying(true)}
                       onStop={() => setIsPlaying(false)}
@@ -132,6 +166,13 @@ export const MicModal = ({ story, sequence, onClose, automaticVocalization, onLo
             )}
             <Button style={{ margin: 2 }} disabled={!isRecording || isConverting || isPlaying} negative onClick={() => isSpeechSynthesis ? stopSpeech() : setIsRecording(false)}>Stop</Button>
           </div>
+          {/*
+          <div>
+            isRecording: { isRecording ? '1' : '0' }<br/>
+            isConverting: { isConverting ? '1' : '0' }<br/>
+            isPlaying: { isPlaying ? '1' : '0' }
+          </div>
+          */}
         </div>
       </Modal.Content>
       <Modal.Actions>

@@ -10,6 +10,14 @@ const getProjectsFolder = () => {
   return PROJECT_PATH
 }
 
+const getVocalsFolder = (folderName) => {
+  const folder = path.join(PROJECT_PATH, folderName, 'vocals')
+  if (!fs.existsSync(folder)) {
+    fs.mkdirSync(folder, {recursive: true})  
+  }
+  return folder
+}
+
 const getProjectsList = () => {
   const projectsFolder = getProjectsFolder()
   return fs.readdirSync(projectsFolder, { withFileTypes: true })
@@ -37,17 +45,43 @@ const list = (event) => {
 const load = (event, folderName) => {
   try {
     const projectFilePath = path.join(PROJECT_PATH, folderName, 'project.json')
-    console.log(projectFilePath)
     const fileContent = fs.readFileSync(projectFilePath)
-    event.sender.send('IPC_REDUX_MESSAGE', 'project-loaded', null, JSON.parse(fileContent))
+    const project = JSON.parse(fileContent)
+    const vocalsFolder = getVocalsFolder(folderName)
+    for (let node of project.nodes) {
+      node.hasSound = fs.existsSync(path.join(vocalsFolder, node.id + '.mp3'))
+    }
+    event.sender.send('IPC_REDUX_MESSAGE', 'project-loaded', null, project)
   } catch (e) {
     event.sender.send('IPC_REDUX_MESSAGE', 'project-loaded', e)
+  }
+}
+
+const loadSound = (event, folderName, fileName) => {
+  // file buffers are out of redux scope !
+  const checks = ['..', '~', '$']
+  const checkInsecure = (check) => (folderName.indexOf(check) !== -1 || fileName.indexOf(check) !== -1)
+  if (checks.some(checkInsecure)) {
+    event.sender.send('sound-file-loaded', {message: 'file path insecure'})
+  } else {
+    const filePath = path.join(PROJECT_PATH, folderName, 'vocals', fileName)
+    console.log(filePath)
+    try {
+      if (fs.existsSync(filePath)) {
+        event.sender.send('sound-file-loaded', null, fs.readFileSync(filePath))
+      } else {
+        event.sender.send('sound-file-loaded', {message: 'file path invalid: ' + filePath})  
+      }
+    } catch (e) {
+      event.sender.send('sound-file-loaded', e)
+    }
   }
 }
 
 const init = () => {
   ipc.on('get-projects-list', list)
   ipc.on('load-project', load)
+  ipc.on('load-sound-file', loadSound)
 }
 
 module.exports = {

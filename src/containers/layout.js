@@ -9,17 +9,17 @@ const Layout = ({ children }) => {
       <div className="app-columns">
         <div className="app-sidebar">
           <AppMenu />
+          <div className="app-footer">
+            <div>Moiki Vocalizer<br/>v{version}<br/>kaelhem ©2020</div>
+          </div>
         </div>
         <div className="content">
-          <div style={{ width: '100%', height: 'calc(100vh - ' + ( HEADER_HEIGHT + FOOTER_HEIGHT ) + 'px)', overflowY: 'auto' }}>
-            <div style={{ padding: '50px 20px' }}>
+          <div style={{ width: '100%', height: 'calc(100vh - ' + ( HEADER_HEIGHT ) + 'px)', overflowY: 'auto' }}>
+            <div style={{ padding: 20 }}>
               { children }
             </div>
           </div>
         </div>
-      </div>
-      <div className="app-footer" style={{ height: FOOTER_HEIGHT, overflowY: 'hidden' }}>
-        <div>Moiki Vocalizer - v{version} {'//'} kaelhem ©2020</div>
       </div>
     </div>
   )

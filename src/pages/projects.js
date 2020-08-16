@@ -28,57 +28,60 @@ const Projects = (props) => {
 
   return (
     <Fragment>
-      { error && (
-        <Segment className="error-message" color='red'>
-          Une erreur est survenue :-(
-        </Segment>
-      )}
-      <div style={{ textAlign: 'center' }}>
-        <Header>Vos histoires</Header>
-        <Divider />
-        { importPending ? (
-          <div style={{ margin: '3em auto', padding: '1em', height: 200, display: 'flex', alignItems: 'center', fontSize: '1.5em' }}>
+      <div className="module-header" style={{height: 200}}>
+        <div style={{ paddingTop: 20, paddingBottom: 20, textAlign: 'center' }}>
+          <Header size="huge">Vos histoires</Header>
+          { importPending ? (
+            <div style={{ margin: '1em auto', padding: '.8em', height: 100, display: 'flex', alignItems: 'center', fontSize: '1.3em' }}>
+              <Loader active={true} />
+            </div>
+          ) : (
+            <Fragment>
+              { importError && (
+                <Segment color='red'>{ importError }</Segment>
+              )}
+              <Dropzone
+                onDataLoaded={ importStory }
+                content={<p>Glissez ici votre histoire au format <em>.zip</em></p>}
+              />
+            </Fragment>
+          )}
+        </div>
+      </div>
+      <div style={{ paddingTop: 200 }}>
+        { error && (
+          <Segment className="error-message" color='red'>
+            Une erreur est survenue :-(
+          </Segment>
+        )}
+        <div style={{ textAlign: 'center' }}>
+          { pending ? (
             <Loader active={true} />
-          </div>
-        ) : (
-          <Fragment>
-            { importError && (
-              <Segment color='red'>
-                { importError }
-              </Segment>
-            )}
-            <Dropzone
-              onDataLoaded={ importStory }
-              content={<p>Glissez ici votre histoire au format <em>.zip</em></p>}
-            />
-          </Fragment>
-        )}
-        { pending ? (
-          <Loader active={true} />
-        ) : (
-          <div style={{ justifyContent: 'center', display: 'flex', flexWrap: 'wrap' }}>
-            { projects && projects.length > 0 ? projects.map((project, idx) => (
-              <Card key={'project-' + idx} className="project-card" onClick={() => loadStory(project.folderName)}>
-                { project.cover ? (
-                  <Image style={{maxHeight: 225, overflow: 'hidden'}} wrapped ui={false}>
-                    <div className='cover' style={{ backgroundImage: 'url(' + project.cover + ')' }} />
-                  </Image>
-                ) : (
-                  <Image src={'/assets/image-wireframe.png'} wrapped ui={false} style={{ height: 225, display: 'flex' }} />
-                )}
-                <Card.Content extra header={project.title} />
-                <Card.Content extra>
-                  <div><Icon name='calendar alternate' /> créée {moment(project.creationDate).fromNow()}</div>
-                </Card.Content>
-                <Card.Content extra>
-                  <Icon name='sound' /> {project.numNodes} passages à vocaliser
-                </Card.Content>
-              </Card>
-            )) : (
-              <p>Auncune histoire n'a été trouvé. Commencez par en importer une&nbsp;!</p>
-            ) }
-          </div>
-        )}
+          ) : (
+            <div style={{ justifyContent: 'center', display: 'flex', flexWrap: 'wrap' }}>
+              { projects && projects.length > 0 ? projects.map((project, idx) => (
+                <Card key={'project-' + idx} className="project-card" onClick={() => loadStory(project.folderName)}>
+                  { project.cover ? (
+                    <Image style={{maxHeight: 225, overflow: 'hidden'}} wrapped ui={false}>
+                      <div className='cover' style={{ backgroundImage: 'url(' + project.cover + ')' }} />
+                    </Image>
+                  ) : (
+                    <Image src={'/assets/image-wireframe.png'} wrapped ui={false} style={{ height: 225, display: 'flex' }} />
+                  )}
+                  <Card.Content extra header={project.title} />
+                  <Card.Content extra>
+                    <div><Icon name='calendar alternate' /> créée {moment(project.creationDate).fromNow()}</div>
+                  </Card.Content>
+                  <Card.Content extra>
+                    <Icon name='sound' /> {project.numNodes} passages à vocaliser
+                  </Card.Content>
+                </Card>
+              )) : (
+                <p>Auncune histoire n'a été trouvé. Commencez par en importer une&nbsp;!</p>
+              ) }
+            </div>
+          )}
+        </div>
       </div>
     </Fragment>
   )

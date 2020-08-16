@@ -11,18 +11,19 @@ const MenuItem = ({name, icon, img, padding, uid, htmlId, activePath, imgStyle={
       style={{
         color: active ? '#154f6b' : '#fff',
         fontWeight: 'bold',
-        background: active ? 'rgba(255,255,255,.85)' : 'rgba(255,255,255,.15)',
+        background: active ? '#d3e3f3' : 'rgba(255,255,255,.5)',
         padding: padding ? padding : 10,
         borderRadius: 6,
         marginLeft: 10,
         marginRight: 10
       }}
+      className={ active ? 'active' : ''}
       id={ htmlId }
       as={ Link }
       to={ `${uid}` }
     >
       { icon && <div><Icon size='big' name={icon} style={{ margin: 'auto' }} /></div> }
-      { name && <span> {name}</span> }
+      { name && <span style={{ marginTop: icon ? 10 : 0 }}>{name}</span> }
     </Menu.Item>
   )
 }

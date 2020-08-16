@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, createRef, Fragment } from 'react'
+import { Redirect } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { actions as storyActions } from 'core/reducers/story'
@@ -9,6 +10,17 @@ import { Button } from 'semantic-ui-react'
 const VocalizeStory = ({ story, clearStory, exportToStudio, pendingExport }) => {
   const [currentNode, setcurrentNode] = useState(null)
   const [automaticVocalization, setAutomaticVocalization] = useState(false)
+  const [vocalizerRefs, setVocalizerRefs] = useState({})
+  
+  useEffect(() => {
+    if (story) {
+      let refs = {}
+      for (let node of story.nodes) {
+        refs[node.id] = createRef()
+      }
+      setVocalizerRefs(refs)
+    }
+  }, [story])
 
   const openMicModal = (seq) => {
     setcurrentNode(seq)
@@ -36,34 +48,45 @@ const VocalizeStory = ({ story, clearStory, exportToStudio, pendingExport }) => 
     setAutomaticVocalization(false)
   }
 
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', padding: 30 }}>
+  const onSequenceUpdated = (node, blob) => {
+    node.hasSound = true
+    vocalizerRefs[node.id].current.updateSound(blob)
+  }
+
+  return !story ? (
+    <Redirect to="/" />
+  ) : (
+    <Fragment>
       <div className="module-header">
-        <div>
+        <div style={{ paddingTop: 20, paddingBottom: 20 }}>
           <Button disabled={pendingExport} onClick={clearStory}>Fermer</Button>
           <Button disabled={pendingExport} onClick={generateAllSounds}>TTS generation...</Button>
           <Button disabled={pendingExport} loading={pendingExport} onClick={exportToStudio}>Export to STUdio</Button>
-          { automaticVocalization ? ' true ' : ' false ' }
         </div>
       </div>
-      { story && story.nodes && story.nodes.map((node, index) => (
-        <SequenceVocalizer
-          key={'node-' + index}
-          index={(index + 1)}
-          sequence={node}
-          editSound={openMicModal}
+      <div style={{ display: 'flex', flexDirection: 'column', padding: 30, paddingTop: 100 }}>
+        { story && story.nodes && story.nodes.map((node, index) => (
+          <SequenceVocalizer
+            ref={vocalizerRefs[node.id]}
+            key={'node-' + index}
+            index={(index + 1)}
+            sequence={node}
+            editSound={openMicModal}
+            hasSound={node.hasSound}
+            folderName={story.projectInfo.folderName}
+          />
+        ))}
+        <MicModal
+          story={story}
+          sequence={currentNode}
+          automaticVocalization={automaticVocalization}
+          onStopAutomaticVocalization={onStopAutomaticVocalization}
+          onSequenceUpdated={onSequenceUpdated}
+          onClose={closeMicModal}
+          onLoadNextSequence={() => loadNextNode()}
         />
-        
-      ))}
-      <MicModal
-        story={story}
-        sequence={currentNode}
-        automaticVocalization={automaticVocalization}
-        onStopAutomaticVocalization={onStopAutomaticVocalization}
-        onClose={closeMicModal}
-        onLoadNextSequence={() => loadNextNode()}
-      />
-    </div>
+      </div>
+    </Fragment>
   )
 }
 
