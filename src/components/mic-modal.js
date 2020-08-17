@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react'
+import { selectors as settingsSelectors } from 'core/reducers/settings'
+import { connect } from 'react-redux'
 import { ipcRenderer as ipc } from 'electron'
 import { ReactMic } from '@matuschek/react-mic'
 import SpeechSynthesisRecorder from 'libs/speech-synthesis-recorder'
@@ -9,22 +11,24 @@ import { Button, Modal, Label } from 'semantic-ui-react'
 let isSpeechSynthesis = false
 let cancelled = false
 
-export const MicModal = (props) => {
+const MicModal = (props) => {
   const {
     story,
     sequence,
+    speechSettings,
     onClose,
     automaticVocalization,
     onLoadNextSequence,
     onStopAutomaticVocalization,
-    onSequenceUpdated
+    onSequenceUpdated,
+    configVoicesList,
+    defaultVoice
   } = props
 
   const [isRecording, setIsRecording] = useState(false)
   const [blobSoundURI, setBlobSoundURI] = useState(null)
   const [isConverting, setIsConverting] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
-  const [isLoadingSound, setIsLoadingSound] = useState(false)
 
   const onSoundLoaded = (event, err, buffer) => {
     ipc.removeListener('sound-file-loaded', onSoundLoaded)
@@ -34,11 +38,9 @@ export const MicModal = (props) => {
       const blob = new Blob([buffer])
       setBlobSoundURI(URL.createObjectURL(blob))
     }
-    setIsLoadingSound(false)
   }
 
   const loadSound = () => {
-    setIsLoadingSound(true)
     ipc.on('sound-file-loaded', onSoundLoaded)
     ipc.send('load-sound-file', story.projectInfo.folderName, sequence.id + '.mp3')
   }
@@ -70,14 +72,6 @@ export const MicModal = (props) => {
     }
   }, [automaticVocalization, sequence])
 
-  const onStart = () => {
-    //console.log('Start record')
-  }
-
-  const onData = () => {
-    //console.log('is recording... (' + sequence.content + ')')
-  }
-
   const onStop = async (blob, blobURL=null) => {
     console.log('onStop...')
     setIsRecording(false)
@@ -99,16 +93,21 @@ export const MicModal = (props) => {
     // console.log(window.speechSynthesis.getVoices().filter(x => x.lang.toLowerCase().indexOf('fr') !== -1))
     isSpeechSynthesis = true
     setIsRecording(true)
-    onStart()
+    const defaultUtteranceOptions = {
+      voice: "Thomas", // "Amelie",
+      lang: "fr-FR", // "fr-CA",
+      pitch: 1, // 0.8
+      rate: 1, // 1.05
+      volume: 2
+    }
+    const opts = speechSettings || (defaultVoice && defaultVoice.data) ? {
+      ...defaultUtteranceOptions,
+      ...(speechSettings || defaultVoice.data)
+    } : defaultUtteranceOptions
+    console.log(speechSettings, opts)
     new SpeechSynthesisRecorder({
       text: sequence.content, 
-      utteranceOptions: {
-        voice: "Thomas", // "Amelie",
-        lang: "fr-FR", // "fr-CA",
-        pitch: .75, // 0.8
-        rate: 1.2, // 1.05
-        volume: 2
-      }
+      utteranceOptions: opts
     }).start()
       .then(tts => tts.blob())
       .then((blob) => onStop(blob.data))
@@ -138,9 +137,7 @@ export const MicModal = (props) => {
             <ReactMic
               record={isRecording}
               className="sound-wave"
-              onStart={onStart}
               onStop={({blob, blobURL}) => !isSpeechSynthesis && onStop(blob, blobURL)}
-              onData={onData}
               mimeType="audio/mp3"
               strokeColor="#000000"
               backgroundColor="#dadada"
@@ -185,3 +182,10 @@ export const MicModal = (props) => {
     </Modal>
   ) : null
 }
+
+const mapStateToProps = (state) => ({
+  configVoicesList: state.settings.speech.voices,
+  defaultVoice: settingsSelectors.getDefaultVoice(state)
+})
+
+export default connect(mapStateToProps)(MicModal)

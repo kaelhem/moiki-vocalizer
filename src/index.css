@@ -180,3 +180,12 @@ a.ui.button:hover {
 .module-header .ui.huge.header {
   color: #4b7dbf;
 }
+
+textarea {
+  resize: none;
+  padding: 10px;
+  border-radius: 4px;
+  border-color: #dededf;
+  font-size: 1.1em;
+  outline: none;
+}
