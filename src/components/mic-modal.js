@@ -7,6 +7,8 @@ import SpeechSynthesisRecorder from 'libs/speech-synthesis-recorder'
 import { AudioPlayerProvider } from 'react-use-audio-player'
 import AudioPlayer from 'components/audio-player'
 import { Button, Modal, Label } from 'semantic-ui-react'
+import moment from 'moment'
+import './sequence-vocalizer.css'
 
 let isSpeechSynthesis = false
 let cancelled = false
@@ -19,6 +21,7 @@ const MicModal = (props) => {
     onClose,
     automaticVocalization,
     onLoadNextSequence,
+    onLoadPreviousSequence,
     onStopAutomaticVocalization,
     onSequenceUpdated,
     configVoicesList,
@@ -56,9 +59,19 @@ const MicModal = (props) => {
     }
   }, [sequence])
 
-  const onConvertComplete = () => {
+  const onConvertComplete = (event, error, res) => {
     ipc.removeListener('ffmpeg-convert-complete', onConvertComplete)
     if (!cancelled) {
+      if (error) {
+        console.log('une erreur est survenue !', error, res)
+      } else {
+        const soundDurationRaw = res.match(/time=\d{2}:\d{2}:\d{2}.\d{2}/gm)
+        let duration = 0
+        if (soundDurationRaw && soundDurationRaw.length === 1) {
+          duration = moment.duration(soundDurationRaw[0].replace('time=', ''))._milliseconds
+          console.log(duration)
+        }
+      }
       sequence.hasSound = true
       setIsConverting(false)
       isSpeechSynthesis = false
@@ -73,10 +86,8 @@ const MicModal = (props) => {
   }, [automaticVocalization, sequence])
 
   const onStop = async (blob, blobURL=null) => {
-    console.log('onStop...')
     setIsRecording(false)
     setIsConverting(true)
-    console.log('converting... tts ? ' + isSpeechSynthesis)
     setBlobSoundURI(blobURL || URL.createObjectURL(blob))
     
     onSequenceUpdated && onSequenceUpdated(sequence, blob)
@@ -104,7 +115,6 @@ const MicModal = (props) => {
       ...defaultUtteranceOptions,
       ...(speechSettings || defaultVoice.data)
     } : defaultUtteranceOptions
-    console.log(speechSettings, opts)
     new SpeechSynthesisRecorder({
       text: sequence.content, 
       utteranceOptions: opts
@@ -119,7 +129,7 @@ const MicModal = (props) => {
   }
 
   return sequence !== null ? (
-    <Modal open={true}>
+    <Modal open={true} className="mic-modal">
       <Modal.Header style={{ background: '#4c77ac', color: '#fff' }}>
         { sequence && (
           <Label style={{ marginRight: 10 }} content={<span style={{ fontSize: '1.5em' }}>{ sequence.id }</span>} />
@@ -129,7 +139,7 @@ const MicModal = (props) => {
       <Modal.Content>
         <div style={{ display: 'flex' }}>
           <div style={{ width: '95%', display: 'flex' }}>
-            <div style={{ marginRight: 20, display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#dadada', width: '100%', padding: 15, textAlign: 'center' }}>
+            <div className="sequence-content">
               { sequence.content }
             </div>
           </div>

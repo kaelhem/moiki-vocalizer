@@ -3,6 +3,7 @@ import { ipcRenderer as ipc } from 'electron'
 import { AudioPlayerProvider } from 'react-use-audio-player'
 import AudioPlayer from 'components/audio-player'
 import { Button, Segment, Label } from 'semantic-ui-react'
+import './sequence-vocalizer.css'
 
 const SequenceLabel = ({index, identifier}) => (
   <Label
@@ -67,29 +68,33 @@ const SequenceVocalizer = forwardRef((props, ref) => {
 
   return (
     <div className="sequence-vocalizer" style={{ marginBottom: 10 }}>
-      <Segment padded>
+      <Segment padded style={{ paddingTop: '4em' }}>
         <SequenceLabel index={index} identifier={sequence.id} />
-        <div>{sequence.content}</div>
-        <div>
-          { (hasSound && blobSoundURI) ? (
-            <AudioPlayerProvider>
-              <AudioPlayer
-                file={blobSoundURI}
-                autoplay={autoplay}
-                onStop={onStop}
+        <div className="attached" style={{ position: 'absolute', top: 7, right: 5, display: 'flex' }}>
+          <Button primary onClick={() => editSound(sequence)}>{ hasSound ? 'Modifier' : 'Vocaliser' }</Button>
+        </div>
+        <div style={{ display: 'flex' }}>
+          <div className="sequence-content">{sequence.content}</div>
+          <div>
+            { (hasSound && blobSoundURI) ? (
+              <AudioPlayerProvider>
+                <AudioPlayer
+                  file={blobSoundURI}
+                  autoplay={autoplay}
+                  onStop={onStop}
+                />
+              </AudioPlayerProvider>
+            ) : (
+              <Button
+                style={{ margin: 2 }} 
+                loading={isLoadingSound}
+                disabled={!hasSound}
+                icon={isPlaying ? "pause" : "play"}
+                primary={hasSound}
+                onClick={onPlay}
               />
-            </AudioPlayerProvider>
-          ) : (
-            <Button
-              style={{ margin: 2 }} 
-              loading={isLoadingSound}
-              disabled={!hasSound}
-              icon={isPlaying ? "pause" : "play"}
-              primary={hasSound}
-              onClick={onPlay}
-            />
-          )}
-          <Button negative onClick={() => editSound(sequence)}>Edit sound...</Button>
+            )}
+          </div>
         </div>
       </Segment>
     </div>

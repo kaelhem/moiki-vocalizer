@@ -1,4 +1,4 @@
-import { all, fork, takeEvery, put, take, select } from 'redux-saga/effects'
+import { all, fork, takeEvery, put, take, select, race } from 'redux-saga/effects'
 import { send as ipcSend } from 'redux-electron-ipc'
 import { actions as toastrActions } from 'react-redux-toastr'
 import { push as navigateTo } from 'connected-react-router'
@@ -7,6 +7,7 @@ import {
   messages as storyMessages,
   selectors as storySelectors
 } from 'core/reducers/story'
+import { stat } from 'fs'
 
 export function *loadSaga(action) {
   yield put(ipcSend('load-project', action.payload))
@@ -50,7 +51,34 @@ export function *exportStudioSaga() {
   try {
     const story = yield select(storySelectors.story)
     yield put(ipcSend('export-to-studio', story))
-    const {payload} = yield take('story-exported')
+    let isFinished = false
+    let payload = null
+    while (!isFinished) {
+      const {progress, error, exported} = yield race({
+        progress: take('story-export-status'),
+        error: take('story-export-status-error'),
+        exported: take('story-exported')
+      })
+      if (exported) {
+        isFinished = true
+        payload = exported.payload
+      } else if (error) {
+        isFinished = true
+        payload = [new Error('Oops, certains fichiers n\'ont pas pu être exportés correctement !')]
+        yield put(storyMessages.exportPending({status: error.payload[0], error: true}))
+      } else {
+        const [status, message=null] = progress.payload
+        yield put(storyMessages.exportPending({status, message}))
+      }
+    }
+    /*
+    const [actionA, actionB] = yield race([
+      take(ACTION_A),
+      take(ACTION_B),
+    ])
+
+    yield take('story-export-status')
+    const {payload} = yield take('story-exported')*/
     const [error, filePath] = payload
     if (error) {
       throw error
@@ -65,7 +93,7 @@ export function *exportStudioSaga() {
 }
 
 export function *clearSaga() {
-  yield put(navigateTo('/'))
+  yield put(navigateTo('/projects'))
 }
 
 // -- watchers

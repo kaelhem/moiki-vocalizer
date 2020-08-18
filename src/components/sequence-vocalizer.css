@@ -1,0 +1,37 @@
+.sequence-vocalizer .sequence-content {
+  flex-grow: 1;
+  margin-right: 7em;
+}
+
+.mic-modal .sequence-content {
+  margin-right: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  text-align: center;
+}
+
+.sequence-vocalizer .sequence-content,
+.mic-modal .sequence-content {
+  font-size: 1.4em;
+  padding: .5em;
+  background: #f3f3f3;
+  border-radius: 4px;
+  border: 1px #e2e2e2 solid;
+  color: #555;
+}
+
+.ui.dimmer .export-spinner.ui.loader:after {
+  border-color: #3399ee transparent transparent;
+}
+
+.button-with-image {
+  width: 230px;
+}
+
+.button-with-image img {
+  margin: 1em auto;
+  max-width: 100px;
+  max-height: 70px;
+}

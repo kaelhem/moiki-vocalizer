@@ -3,6 +3,8 @@ import { selectors as settingsSelectors } from 'core/reducers/settings'
 import { connect } from 'react-redux'
 import SpeechSynthesisRecorder from 'libs/speech-synthesis-recorder'
 import { Button, Modal, Select, Divider, Loader, Radio } from 'semantic-ui-react'
+import moment from 'moment'
+import { stat } from 'fs'
 
 const GenerateTtsModal = (props) => {
   const {
@@ -10,7 +12,8 @@ const GenerateTtsModal = (props) => {
     listVoices,
     onClose,
     onValidate,
-    onOpenOptions
+    onOpenOptions,
+    stats
   } = props
   
   const [voice, setVoice] = useState(defaultVoice)
@@ -29,6 +32,10 @@ const GenerateTtsModal = (props) => {
       }
     }).start()
   }
+
+  const duration = moment.duration((stats.estimatedTime / voice.data.rate) + (stats.numNodes / 2), 's')
+  console.log('devrait durer: : ', moment.utc(duration.as('milliseconds')).format('mm:ss'))
+  //const duration = 
 
   return (
     <Modal
@@ -69,7 +76,7 @@ const GenerateTtsModal = (props) => {
           
         </div>
       </Modal.Content>
-      <Modal.Actions>
+      <Modal.Actions style={{ display: 'flex', justifyContent: 'flex-end' }}>
         <Button
           id='modal-cancel-button'
           onClick={ onClose }
@@ -80,7 +87,10 @@ const GenerateTtsModal = (props) => {
           onClick={ () => onValidate(voice.data) }
           disabled={ false }
           primary
-        >Commencer !</Button>
+        >
+          <div>Commencer</div>
+          <em style={{ fontWeight: 'normal' }}>temps estimé: {duration.humanize()}</em>
+        </Button>
       </Modal.Actions>
     </Modal>
   )

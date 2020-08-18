@@ -9,6 +9,8 @@ export const types = {
   EXPORT_STUDIO: 'moiki-voc/story/EXPORT_STUDIO',
   EXPORT_SUCCESS: 'moiki-voc/story/EXPORT_SUCCESS',
   EXPORT_ERROR: 'moiki-voc/story/EXPORT_ERROR',
+  EXPORT_PENDING: 'moiki-voc/story/EXPORT_PENDING',
+  EXPORT_CANCEL: 'moiki-voc/story/EXPORT_CANCEL',
   CLEAR: 'moiki-voc/story/CLEAR'
 }
 
@@ -50,18 +52,33 @@ export default function storyReducer(state = initialState, action = {}) {
     case types.EXPORT_STUDIO: {
       return {
         ...state,
-        pendingExport: true,
+        pendingExport: {
+          status: 1
+        },
         errorExport: null
+      }
+    }
+    case types.EXPORT_PENDING: {
+      return {
+        ...state,
+        pendingExport: action.payload
       }
     }
     case types.EXPORT_ERROR: {
       return {
         ...state,
-        pendingExport: false,
+        //pendingExport: false,
         errorExport: action.payload,
       }
     }
     case types.EXPORT_SUCCESS: {
+      return {
+        ...state,
+        pendingExport: false,
+        errorExport: null
+      }
+    }
+    case types.EXPORT_CANCEL: {
       return {
         ...state,
         pendingExport: false,
@@ -80,6 +97,7 @@ export default function storyReducer(state = initialState, action = {}) {
 export const actions = {
   load: (name) => ({type: types.LOAD, payload: name}),
   import: (file) => ({type: types.IMPORT, payload: file}),
+  exportCancel: () => ({type:types.EXPORT_CANCEL}),
   exportToStudio: () => ({type: types.EXPORT_STUDIO}),
   clear: () => ({type: types.CLEAR })
 }
@@ -90,6 +108,7 @@ export const messages = {
   importSuccess: (data) => ({type: types.IMPORT_SUCCESS, payload: data}),
   exportError: (error) => ({type: types.EXPORT_ERROR, payload: error}),
   exportSuccess: (data) => ({type: types.EXPORT_SUCCESS, payload: data}),
+  exportPending: (data) => ({type: types.EXPORT_PENDING, payload: data})
 }
 
 export const selectors = {

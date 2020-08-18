@@ -38,9 +38,10 @@ const convertSound = (event, arraybuffer, folderName, fileName) => {
     .output(path.join(outputFolder, fileName + '.mp3'))
     .on('error', (err, stdout, stderr) => {
       console.log('An error occurred: ' + err.message, err, stderr)
+      event.sender.send('ffmpeg-convert-complete', err, stderr)
     })
     .on('end', (err, stdout, stderr) => {
-      event.sender.send('ffmpeg-convert-complete', stdout)
+      event.sender.send('ffmpeg-convert-complete', null, stdout)
     })
     .run()
 }

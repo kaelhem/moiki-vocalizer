@@ -7,19 +7,37 @@ import SequenceVocalizer from 'components/sequence-vocalizer'
 import MicModal from 'components/mic-modal'
 import GenerateTtsModal from 'components/generate-tts-modal'
 import VoicesModal from 'components/voices-modal'
-import { ExportModal } from 'components/export-modal'
-import { Button } from 'semantic-ui-react'
+import ExportModal from 'components/export-modal'
+import { Button, Icon } from 'semantic-ui-react'
+import moment from 'moment'
 
-const VocalizeStory = ({ story, clearStory, exportToStudio, pendingExport }) => {
+const VocalizeStory = ({ story, clearStory, exportToStudio }) => {
   const [currentNode, setcurrentNode] = useState(null)
   const [automaticVocalization, setAutomaticVocalization] = useState(false)
   const [vocalizerRefs, setVocalizerRefs] = useState({})
   const [ttsModalIsOpen, setTtsModalIsOpen] = useState(false)
   const [ttsModalOptionsIsOpen, setTtsModalOptionsIsOpen] = useState(false)
   const [speechSettings, setSpeechSettings] = useState(null)
+  const [stats, setStats] = useState(null)
+  const [showExportModal, setShowExportModal] = useState(false)
   
   useEffect(() => {
     if (story) {
+      const words = story.nodes
+        .map(x => x.content)
+        .join(' ')
+        .replace(/[.,'!:?"]/gim, ' ')
+        .replace(/(\s)+/gim, ' ')
+        .split(' ')
+        .filter(x => x !== '')
+
+      console.log('num words = ' + words.length, words)
+      console.log('temps estimé pour la vocalisation: ', (words.length / 150 * 60))
+      setStats({
+        numNodes: story.nodes.length,
+        numWords: words.length,
+        estimatedTime: (words.length / 150) * 60
+      })
       let refs = {}
       for (let node of story.nodes) {
         refs[node.id] = createRef()
@@ -41,6 +59,10 @@ const VocalizeStory = ({ story, clearStory, exportToStudio, pendingExport }) => 
     setSpeechSettings(settings)
     setAutomaticVocalization(true)
     setcurrentNode(story.nodes[0])
+    setStats({
+      ...stats,
+      startAt: new Date().getTime()
+    })
   }
 
   const loadNextNode = () => {
@@ -48,6 +70,10 @@ const VocalizeStory = ({ story, clearStory, exportToStudio, pendingExport }) => 
       const currentNodeIndex = story.nodes.findIndex(({id}) => currentNode.id === id)
       if (story.nodes.length > currentNodeIndex + 1) {
         setcurrentNode(story.nodes[currentNodeIndex + 1])
+      } else {
+        const now = new Date().getTime()
+        const duration = moment.duration(now - stats.startAt, 'milliseconds').as('milliseconds')
+        console.log('fini en: ', moment.utc(duration).format('mm:ss'))
       }
     }
   }
@@ -61,26 +87,18 @@ const VocalizeStory = ({ story, clearStory, exportToStudio, pendingExport }) => 
     vocalizerRefs[node.id].current.updateSound(blob)
   }
 
-  const words = story.nodes
-    .map(x => x.content)
-    .join(' ')
-    .replace(/[.,'!:?"]/gim, ' ')
-    .replace(/(\s)+/gim, ' ')
-    .split(' ')
-    .filter(x => x !== '')
-
-  console.log('num words = ' + words.length, words)
-
   return !story ? (
     <Redirect to="/" />
   ) : (
     <Fragment>
       <div className="module-header">
         <div style={{ paddingTop: 20, paddingBottom: 20 }}>
-          <Button disabled={pendingExport} onClick={clearStory}>Fermer</Button>
-          {/*<Button disabled={pendingExport} onClick={() => setTtsModalOptionsIsOpensetTtsModalIsOpen(true)}>Options</Button>*/}
-          <Button disabled={pendingExport} onClick={() => setTtsModalIsOpen(true)}>Synthèse vocale</Button>
-          <Button disabled={pendingExport} loading={pendingExport} onClick={exportToStudio}>Export to STUdio</Button>
+          <Button onClick={clearStory}>Fermer</Button>
+          {/*<Button onClick={() => setTtsModalOptionsIsOpensetTtsModalIsOpen(true)}>Options</Button>*/}
+          <Button onClick={() => setTtsModalIsOpen(true)}>Synthèse vocale</Button>
+          <Button primary onClick={() => setShowExportModal(true)}>
+            <Icon name='download'/> Exporter
+          </Button>
         </div>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', padding: 30, paddingTop: 100 }}>
@@ -109,6 +127,7 @@ const VocalizeStory = ({ story, clearStory, exportToStudio, pendingExport }) => 
           <GenerateTtsModal
             onClose={() => setTtsModalIsOpen(false)}
             onValidate={onGenerateTts}
+            stats={stats}
             onOpenOptions={() => setTtsModalOptionsIsOpen(true)}
           />
         )}
@@ -117,14 +136,18 @@ const VocalizeStory = ({ story, clearStory, exportToStudio, pendingExport }) => 
             onClose={() => setTtsModalOptionsIsOpen(false)}
           />
         )}
+        { showExportModal && (
+          <ExportModal
+            onClose={() => setShowExportModal(false)}
+          />
+        )}
       </div>
     </Fragment>
   )
 }
 
 const mapStateToProps = (state) => ({
-  story: state.story.story,
-  pendingExport: state.story.pendingExport
+  story: state.story.story
 })
 
 const mapDispatchToProps = (dispatch) => ({

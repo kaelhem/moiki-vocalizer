@@ -42,14 +42,22 @@ const exportToStudio = async (event, story) => {
     } else {
       fsExtra.emptyDirSync(vocalsCopyFolder)
     }
+    let mergeSfxStepCount = 0
     for (let seq of story.sequences) {
+      ++mergeSfxStepCount
       if (seq.soundSfx && seq.soundSfx.sound && seq.soundSfx.sound !== 'none') {
+        event.sender.send('IPC_REDUX_MESSAGE', 'story-export-status', 1, mergeSfxStepCount + '/' + story.sequences.length)
         const sfx = story.sounds.find(({id}) => id === seq.soundSfx.sound)
         if (sfx) {
           const vocalFilePath = path.join(PROJECT_PATH, story.projectInfo.folderName, 'vocals' , seq.id + '.mp3')
           const sfxFilePath = path.join(PROJECT_PATH, story.projectInfo.folderName, sfx.sound.localFile)
-          // TODO : allow sounds params (delay, volume)
-          await new Promise(resolve => ffmpeg.mergeSounds(vocalFilePath, sfxFilePath, path.join(story.projectInfo.folderName, 'vocals-copy'), seq.id + '.mp3', resolve))
+          if (fs.existsSync(vocalFilePath)) {
+            // TODO : allow sounds params (delay, volume)
+            await new Promise(resolve => ffmpeg.mergeSounds(vocalFilePath, sfxFilePath, path.join(story.projectInfo.folderName, 'vocals-copy'), seq.id + '.mp3', resolve))
+          } else {
+            event.sender.send('IPC_REDUX_MESSAGE', 'story-export-status-error', 1)
+            return
+          }
         }
       }
     }
@@ -62,13 +70,20 @@ const exportToStudio = async (event, story) => {
       fsExtra.emptyDirSync(tempPath)
     }
     const concatenateVocals = {}
+    let concatStepCount = 0
     for (let node of sequencesDescriptor) {
+      ++concatStepCount
       if (!concatenateVocals[node.list.join(',')]) {
         const files = []
+        event.sender.send('IPC_REDUX_MESSAGE', 'story-export-status', 2, concatStepCount + '/' + sequencesDescriptor.length)
         for (let p of node.list) {
           let filePath = path.join(PROJECT_PATH, story.projectInfo.folderName, 'vocals-copy' , p + '.mp3')
           if (!fs.existsSync(filePath)) {
             filePath = path.join(PROJECT_PATH, story.projectInfo.folderName, 'vocals' , p + '.mp3')
+          }
+          if (!fs.existsSync(filePath)) {
+            event.sender.send('IPC_REDUX_MESSAGE', 'story-export-status-error', 2)
+            return
           }
           if (!soundsDuration[p]) {
             const duration = await new Promise(resolve => ffmpeg.getSoundDuration(filePath, (err, metadata) => {
@@ -137,7 +152,7 @@ const exportToStudio = async (event, story) => {
         } else {
           fs.copyFileSync(filePath, finalFilePath)
         }
-        event.sender.send('IPC_REDUX_MESSAGE', 'story-export-status', 3, 'Séquences assemblées ' + count + '/' + concatenateVocalsArray.length)
+        event.sender.send('IPC_REDUX_MESSAGE', 'story-export-status', 3, count + '/' + concatenateVocalsArray.length)
         ++count
         alreadyMerged[soundListKey] = true
       }
