@@ -34,10 +34,12 @@ const enableMicrophone = (event) => {
 const setup = (event) => {
   // allow to remove ffmpeg from cache
   // ffbinaries.clearCache()
-  const ffmpegReady = fs.existsSync(path.join(FFMPEG_BIN_PATH, 'ffmpeg')) && fs.existsSync(path.join(FFMPEG_BIN_PATH, 'ffprobe'))
+  console.log(FFMPEG_BIN_PATH)
+  const hasFfmpeg = fs.existsSync(path.join(FFMPEG_BIN_PATH, 'ffmpeg')) || fs.existsSync(path.join(FFMPEG_BIN_PATH, 'ffmpeg.exe'))
+  const hasFfprobe = fs.existsSync(path.join(FFMPEG_BIN_PATH, 'ffprobe')) || fs.existsSync(path.join(FFMPEG_BIN_PATH, 'ffprobe.exe'))
   event.sender.send('IPC_REDUX_MESSAGE', 'app-setup-response', {
     microphoneReady: systemPreferences.getMediaAccessStatus('microphone') === 'granted',
-    ffmpegReady
+    ffmpegReady: hasFfmpeg && hasFfprobe
   })
 }
 

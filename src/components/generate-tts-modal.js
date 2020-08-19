@@ -2,7 +2,7 @@ import React, { useState, Fragment } from 'react'
 import { selectors as settingsSelectors } from 'core/reducers/settings'
 import { connect } from 'react-redux'
 import SpeechSynthesisRecorder from 'libs/speech-synthesis-recorder'
-import { Button, Modal, Select, Divider, Loader, Radio } from 'semantic-ui-react'
+import { Button, Modal, Select, Divider, Loader, Radio, Icon } from 'semantic-ui-react'
 import moment from 'moment'
 import { stat } from 'fs'
 
@@ -33,10 +33,10 @@ const GenerateTtsModal = (props) => {
     }).start()
   }
 
-  const duration = moment.duration((stats.estimatedTime / voice.data.rate) + (stats.numNodes / 2), 's')
-  console.log('devrait durer: : ', moment.utc(duration.as('milliseconds')).format('mm:ss'))
-  //const duration = 
-
+  const duration = voice ? moment.duration((stats.estimatedTime / voice.data.rate) + (stats.numNodes / 2), 's') : 0
+  if (duration) {
+    console.log('devrait durer: : ', moment.utc(duration.as('milliseconds')).format('mm:ss'))
+  }
   return (
     <Modal
       size="tiny"
@@ -71,7 +71,12 @@ const GenerateTtsModal = (props) => {
               />
             </Fragment>
           ) : (
-            <Loader active={true} />
+            <Fragment>
+			  <p>Avant toute chose, commencez par ajouter une voix dans vos préférences</p>
+			  <Button onClick={onOpenOptions}>
+				<Icon name='plus' /> Ajouter une voix
+			  </Button>
+			</Fragment>
           )}
           
         </div>
@@ -85,11 +90,11 @@ const GenerateTtsModal = (props) => {
         <Button
           id='modal-validate-button'
           onClick={ () => onValidate(voice.data) }
-          disabled={ false }
+          disabled={ !voice }
           primary
         >
           <div>Commencer</div>
-          <em style={{ fontWeight: 'normal' }}>temps estimé: {duration.humanize()}</em>
+          { duration > 0 && (<em style={{ fontWeight: 'normal' }}>temps estimé: {duration.humanize()}</em>)}
         </Button>
       </Modal.Actions>
     </Modal>
