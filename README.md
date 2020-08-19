@@ -1,4 +1,4 @@
-![](https://raw.githubusercontent.com/kaelhem/moiki-vocalizer/public/logo192.png)
+![Image](../master/public/logo192.png?raw=true)
 
 # Moiki Vocalizer
 
