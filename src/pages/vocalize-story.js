@@ -71,6 +71,7 @@ const VocalizeStory = ({ story, clearStory, exportToStudio }) => {
       if (story.nodes.length > currentNodeIndex + 1) {
         setcurrentNode(story.nodes[currentNodeIndex + 1])
       } else {
+        setAutomaticVocalization(false)
         const now = new Date().getTime()
         const duration = moment.duration(now - stats.startAt, 'milliseconds').as('milliseconds')
         console.log('fini en: ', moment.utc(duration).format('mm:ss'))

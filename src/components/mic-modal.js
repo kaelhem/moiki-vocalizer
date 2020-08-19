@@ -75,6 +75,7 @@ const MicModal = (props) => {
       sequence.hasSound = true
       setIsConverting(false)
       isSpeechSynthesis = false
+      const currentIndex = story.nodes.findIndex(x => x.id === sequence.id)
       onLoadNextSequence()
     }
   }

@@ -17,7 +17,7 @@ const Home = (props) => {
           {/*<Button className="link-button" as='a' href="https://github.com/kaelhem/moiki-vocalizer" target="_blank" primary size="big" style={{ marginBottom: '2em' }}>Comment ça marche ?</Button>*/}
           <div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', width: 500, margin: 'auto' }}>
             <Divider horizontal>en bref</Divider>
-            <ul style={{ margin: '2em auto', marginTop: 0, fontSize: '1.2em', lineHeight: '1.2em', listStyleType: 'none' }}>
+            <ul style={{ margin: '2em auto', marginTop: 0, fontSize: '1.2em', lineHeight: '1.2em', listStyleType: 'none', padding: 0 }}>
               <li><span role="img" aria-label="Microphone">🎙️</span> enregistrements avec <b>micro</b> ou <b>synthèse vocale</b></li>
               <li><span role="img" aria-label="Snowman">♻️</span> conservation des <b>actions</b> et <b>conditions</b></li>
               <li><span role="img" aria-label="Musique">🎵</span> conservation des <b>boucles</b> et <b>effets sonores</b></li>

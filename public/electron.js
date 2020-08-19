@@ -1,4 +1,4 @@
-const { app, BrowserWindow, shell } = require('electron')
+const { app, shell, BrowserWindow, Menu } = require('electron')
 
 const path = require('path')
 const isDev = require('electron-is-dev')
@@ -33,6 +33,7 @@ const createWindow = () => {
   mainWindow.on('closed', () => mainWindow = null)
 
   if (!isDev) {
+    Menu.setApplicationMenu(null)
     mainWindow.webContents.on('devtools-opened', () => {
       mainWindow.webContents.closeDevTools()
     })

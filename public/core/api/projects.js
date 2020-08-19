@@ -65,7 +65,6 @@ const loadSound = (event, folderName, fileName) => {
     event.sender.send('sound-file-loaded', {message: 'file path insecure'})
   } else {
     const filePath = path.join(PROJECT_PATH, folderName, 'vocals', fileName)
-    console.log(filePath)
     try {
       if (fs.existsSync(filePath)) {
         event.sender.send('sound-file-loaded', null, fs.readFileSync(filePath))
