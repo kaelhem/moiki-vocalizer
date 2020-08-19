@@ -1,6 +1,6 @@
-![Image](../master/public/logo192.png?raw=true)
-
 # Moiki Vocalizer
+
+![Image](../master/public/logo192.png?raw=true)
 
 Cet outil permet de transformer une histoire faite avec [Moiki](https://moiki.fr) en conte audio interactif.
 
