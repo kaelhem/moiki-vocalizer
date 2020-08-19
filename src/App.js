@@ -2,6 +2,7 @@ import React, { Fragment } from 'react'
 import { connect } from 'react-redux'
 import { Route, Switch, Redirect } from 'react-router-dom'
 import Layout from 'containers/layout'
+import StartupScreen from 'components/startup-screen'
 import { Loader } from 'semantic-ui-react'
 import ReduxToastr from 'react-redux-toastr'
 
@@ -10,7 +11,7 @@ import Home from './pages/home'
 import VocalizeStory from './pages/vocalize-story'
 import Projects from './pages/projects'
 
-const App = ({ isReady }) => (
+const App = ({ isReady, showStartupScreen }) => (
   <Fragment>
     {isReady ? (
       <Layout>
@@ -22,7 +23,13 @@ const App = ({ isReady }) => (
         </Switch>
       </Layout>
     ) : (
-      <Loader active={true} />
+      <Fragment>
+        { showStartupScreen ? (
+          <StartupScreen />
+        ) : (
+          <Loader active={true} />
+        )}
+      </Fragment>
     )}
     <ReduxToastr
       timeOut={3000}
@@ -37,7 +44,8 @@ const App = ({ isReady }) => (
 )
 
 const mapStateToProps = (state) => ({
-  isReady: state.app.ready
+  isReady: state.app.ready,
+  showStartupScreen: state.app.showStartupScreen
 })
 
 export default connect(mapStateToProps)(App)

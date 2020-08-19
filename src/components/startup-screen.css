@@ -1,0 +1,13 @@
+.startup-block {
+  width: 500px;
+  min-height: 300px;
+  border-radius: 15px;
+  background: rgb(255, 255, 255);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding: 3em;
+  text-align: center;
+  box-shadow: 40px 40px 40px #2a85d4, -40px -40px 40px #2a85d4, -40px 40px 40px #2a85d4, 40px -40px 40px #2a85d4;
+}

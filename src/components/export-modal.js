@@ -29,34 +29,36 @@ const ExportModal = (props) => {
     exportToStudio,
     onClose,
     pendingExport,
-    exportCancel
+    exportCancel,
+    exportPath
   } = props
 
   const [isExporting, setIsExporting] = useState(false)
 
-  /*
-  useEffect(() => {
-    exportToStudio()
-  }, [])*/
-
   const getStatusHeader = () => {
     if (pendingExport && !pendingExport.error) {
       return (
-        <div style={{ borderRadius: 4, background: '#d3e3f3', padding: '3em', margin: '2em', position: 'relative'}}>
-          <Loader className="export-spinner" active={true} size="big" />
-        </div>
+        <Fragment>
+          <div style={{ borderRadius: 4, background: '#d3e3f3', padding: '3em', margin: '2em', position: 'relative'}}>
+            <Loader indeterminate className="export-spinner" active={true} size="big" />
+          </div>
+          <Button basic onClick={ closeModal } size="mini">Annuler</Button>
+        </Fragment>
       )
     } else if (pendingExport && pendingExport.error) {
       return (
         <div style={{ textAlign: 'center', margin: '1em' }}>
-          <div><Icon color='red' name='cancel' size='huge' /><br/>Oops. Une erreur empêche l'export  !</div>
+          <div><Icon color='red' name='cancel' size='huge' /></div>
+          <div>Oops. Une erreur empêche l'export  !</div>
+          <div style={{ margin: '1em' }}>Oops. Une erreur empêche l'export  !</div>
           <Button onClick={ closeModal } primary>Fermer</Button>
         </div>
       )
     } else {
       return (
         <div style={{ textAlign: 'center', margin: '1em' }}>
-          <div><Icon color='green' name='check' size='huge' /><br/>Fichier exporté !</div>
+          <div><Icon color='green' name='check' size='huge' /></div>
+          <div style={{ margin: '1em' }}>Fichier exporté : <b>{ exportPath }</b></div>
           <Button onClick={ closeModal } primary>Fermer</Button>
         </div>
       )
@@ -72,9 +74,15 @@ const ExportModal = (props) => {
     return <Label size='mini' color='green'>ok</Label>
   }
 
+  const exportLunii = () => {
+    setIsExporting(true)
+    exportToStudio()
+  }
+
   const closeModal = () => {
     exportCancel()
     onClose()
+    setIsExporting(false)
   }
 
   return (
@@ -115,7 +123,7 @@ const ExportModal = (props) => {
                   <Image src={'assets/html5-icon.png'} />
                   <div><em>pour que ça marche dans un navigateur web</em></div>
                 </Button>
-                <Button style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }} className='button-with-image' primary onClick={ onClose }>
+                <Button style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }} className='button-with-image' primary onClick={ exportLunii }>
                   <div style={{fontSize: '1.2em', fontWeight: 'bold' }}>Export STUdio</div>
                   <div style={{ flexGrow: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <Image src={'assets/lunii-icon.png'} />
@@ -137,7 +145,8 @@ const ExportModal = (props) => {
 
 const mapStateToProps = (state) => ({
   story: state.story.story,
-  pendingExport: state.story.pendingExport
+  pendingExport: state.story.pendingExport,
+  exportPath: state.story.exportPath
 })
 
 const mapDispatchToProps = (dispatch) => ({

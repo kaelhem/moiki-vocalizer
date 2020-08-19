@@ -11,7 +11,12 @@ const kebabCase = require('lodash.kebabcase')
 
 const ffmpeg = require('./ffmpeg')
 
+let currentExportToken = null
+
 const exportToStudio = async (event, story) => {
+  currentExportToken = {
+    cancelled: false
+  }
   try {
     const { sequencesDescriptor, uuidSequencesMap, sequences, variables } = studioConverter(story)
 
@@ -44,6 +49,9 @@ const exportToStudio = async (event, story) => {
     }
     let mergeSfxStepCount = 0
     for (let seq of story.sequences) {
+      if (currentExportToken.cancelled) {
+        return
+      }
       ++mergeSfxStepCount
       if (seq.soundSfx && seq.soundSfx.sound && seq.soundSfx.sound !== 'none') {
         event.sender.send('IPC_REDUX_MESSAGE', 'story-export-status', 1, mergeSfxStepCount + '/' + story.sequences.length)
@@ -77,6 +85,9 @@ const exportToStudio = async (event, story) => {
         const files = []
         event.sender.send('IPC_REDUX_MESSAGE', 'story-export-status', 2, concatStepCount + '/' + sequencesDescriptor.length)
         for (let p of node.list) {
+          if (currentExportToken.cancelled) {
+            return
+          }
           let filePath = path.join(PROJECT_PATH, story.projectInfo.folderName, 'vocals-copy' , p + '.mp3')
           if (!fs.existsSync(filePath)) {
             filePath = path.join(PROJECT_PATH, story.projectInfo.folderName, 'vocals' , p + '.mp3')
@@ -143,6 +154,9 @@ const exportToStudio = async (event, story) => {
         const finalFilePath = path.join(finalMergePath, concatenateVocals[soundListKey] + '.mp3')
         if (loopsToMix.length > 0) {
           for (let loop of loopsToMix) {
+            if (currentExportToken.cancelled) {
+              return
+            }
             const loopPath = path.join(tempMergePath, '..', loop.file)
             const duration = loop.to - loop.from
             await new Promise(resolve => ffmpeg.extractSound(path.join(PROJECT_PATH, story.projectInfo.folderName, loop.file), 0, duration, loopPath, resolve))        
@@ -255,8 +269,15 @@ const exportToStudio = async (event, story) => {
   }
 }
 
+const cancelExport = () => {
+  if (currentExportToken) {
+    currentExportToken.cancelled = true
+  }
+}
+
 const init = () => {
   ipc.on('export-to-studio', exportToStudio)
+  ipc.on('story-export-cancel', cancelExport)
 }
 
 module.exports = {

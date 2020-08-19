@@ -30,6 +30,11 @@ a.ui.button:hover {
   color: rgba(0, 0, 0, .6) !important;
 }
 
+a.ui.button.link-button,
+a.ui.button.link-button:hover {
+  color: #fff !important;
+}
+
 .app {
   display: flex;
   flex-direction: column;

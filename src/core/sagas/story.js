@@ -7,7 +7,6 @@ import {
   messages as storyMessages,
   selectors as storySelectors
 } from 'core/reducers/story'
-import { stat } from 'fs'
 
 export function *loadSaga(action) {
   yield put(ipcSend('load-project', action.payload))
@@ -57,7 +56,8 @@ export function *exportStudioSaga() {
       const {progress, error, exported} = yield race({
         progress: take('story-export-status'),
         error: take('story-export-status-error'),
-        exported: take('story-exported')
+        exported: take('story-exported'),
+        cancel: take(storyTypes.EXPORT_CANCEL)
       })
       if (exported) {
         isFinished = true
@@ -66,24 +66,21 @@ export function *exportStudioSaga() {
         isFinished = true
         payload = [new Error('Oops, certains fichiers n\'ont pas pu être exportés correctement !')]
         yield put(storyMessages.exportPending({status: error.payload[0], error: true}))
-      } else {
+      } else if (progress) {
         const [status, message=null] = progress.payload
         yield put(storyMessages.exportPending({status, message}))
+      } else {
+        isFinished = true
+        yield put(ipcSend('story-export-cancel'))
+        return
       }
     }
-    /*
-    const [actionA, actionB] = yield race([
-      take(ACTION_A),
-      take(ACTION_B),
-    ])
 
-    yield take('story-export-status')
-    const {payload} = yield take('story-exported')*/
     const [error, filePath] = payload
     if (error) {
       throw error
     }
-    yield put(storyMessages.exportSuccess())
+    yield put(storyMessages.exportSuccess(filePath))
     yield put(toastrActions.add({type: 'info', title: 'Export terminé', message: `Fichier exporté : ${filePath}.`}))
   } catch (e) {
     console.log(e)

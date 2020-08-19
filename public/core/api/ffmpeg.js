@@ -1,30 +1,21 @@
 const { ipcMain: ipc } = require('electron')
 const { PROJECT_PATH, FFMPEG_BIN_PATH } = require('../constants')
-const ffbinaries = require('ffbinaries')
 const ffmpeg = require('fluent-ffmpeg')
 const arrayBufferToBuffer = require('arraybuffer-to-buffer')
 const Readable = require('stream').Readable
 const path = require('path')
 const fs = require('fs')
-const isDev = require('electron-is-dev')
+
+const setBinariesPaths = () => {
+  ffmpeg.setFfmpegPath(path.join(FFMPEG_BIN_PATH, 'ffmpeg'))
+  ffmpeg.setFfprobePath(path.join(FFMPEG_BIN_PATH, 'ffprobe'))
+}
 
 const bufferToStream = (buffer) => { 
   const stream = new Readable()
   stream.push(buffer)
   stream.push(null)
   return stream
-}
-
-const download = (event) => {
-  try {
-    ffbinaries.downloadBinaries(['ffmpeg', 'ffprobe'], {quiet: !isDev, destination: FFMPEG_BIN_PATH}, () => {
-      ffmpeg.setFfmpegPath(path.join(FFMPEG_BIN_PATH, 'ffmpeg'))
-      ffmpeg.setFfprobePath(path.join(FFMPEG_BIN_PATH, 'ffprobe'))
-      event.sender.send('IPC_REDUX_MESSAGE', 'ffmpeg-ready', null)
-    })
-  } catch (e) {
-    event.sender.send('IPC_REDUX_MESSAGE', 'ffmpeg-ready', e)
-  }
 }
 
 const convertSound = (event, arraybuffer, folderName, fileName) => {
@@ -132,13 +123,14 @@ const concatSoundsCommand = (event, files, folderName, fileName) => {
 }
 
 const init = () => {
-  ipc.on('ffmpeg-download', download)
+  setBinariesPaths()
   ipc.on('ffmpeg-convert-webm2mp3', convertSound)
   ipc.on('ffmpeg-concat-sounds', concatSoundsCommand)
 }
 
 module.exports = {
   init,
+  setBinariesPaths,
   extractSound,
   concatSounds,
   mergeSounds,

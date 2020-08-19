@@ -1,5 +1,4 @@
-const electron = require('electron')
-const { app, BrowserWindow, shell } = electron
+const { app, BrowserWindow, shell } = require('electron')
 
 const path = require('path')
 const isDev = require('electron-is-dev')
@@ -21,6 +20,7 @@ const createWindow = () => {
       enableRemoteModule: true
     }
   })
+  mainWindow.setMenuBarVisibility(false)
   
   mainWindow.loadURL(isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`)
   if (isDev) {
@@ -30,10 +30,13 @@ const createWindow = () => {
       mainWindow.webContents.openDevTools({mode: 'detach'})
     }, 1000)
   }
-  electron.systemPreferences.askForMediaAccess('microphone').then((isAllowed) => {
-    console.log('isAllowed', isAllowed)
-  })
   mainWindow.on('closed', () => mainWindow = null)
+
+  if (!isDev) {
+    mainWindow.webContents.on('devtools-opened', () => {
+      mainWindow.webContents.closeDevTools()
+    })
+  }
 
   mainWindow.webContents.on('new-window', (event, url) => {
     if (!url.match(/http:\/\/localhost.*/gi) && url.startsWith('http')) {

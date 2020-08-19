@@ -19,7 +19,8 @@ const initialState = {
   error: null,
   story: null,
   pendingExport: false,
-  errorExport: null
+  errorExport: null,
+  exportPath: null,
 }
 
 export default function storyReducer(state = initialState, action = {}) {
@@ -75,14 +76,16 @@ export default function storyReducer(state = initialState, action = {}) {
       return {
         ...state,
         pendingExport: false,
-        errorExport: null
+        errorExport: null,
+        exportPath: action.payload
       }
     }
     case types.EXPORT_CANCEL: {
       return {
         ...state,
         pendingExport: false,
-        errorExport: null
+        errorExport: null,
+        exportPath: null
       }
     }
     case appTypes.READY:

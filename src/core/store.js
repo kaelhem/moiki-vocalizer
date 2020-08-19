@@ -11,7 +11,7 @@ export const history = createHashHistory()
 
 const persistConfig = {
   key: 'moiki-vocalizer',
-  blacklist: ['router', 'toastr'],
+  blacklist: ['router', 'toastr', 'app'],
   storage: createElectronStorage()
 }
 const configureStore = (initialState) => {

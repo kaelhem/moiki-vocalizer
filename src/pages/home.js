@@ -13,16 +13,16 @@ const Home = (props) => {
       </div>
       <div style={{ paddingTop: 240 }}>
         <div style={{ textAlign: 'center' }}>
-          <p style={{ margin: '2em auto', fontSize: '1.2em', lineHeight: '1.2em' }}><b>Moiki Vocalizer</b> : transformez vos histoires faites avec <a href="https://moiki.fr" target="_blank" rel="noopener noreferrer">Moiki</a> en audio !</p>
-          <Button primary size="big" style={{ marginBottom: '2em' }}>Comment ça marche ?</Button>
-          <div style={{ textAlign: 'left', textAlign: 'left', display: 'flex', flexDirection: 'column', width: 500, margin: 'auto' }}>
+          <p style={{ margin: '5em auto', fontSize: '1.2em', lineHeight: '1.2em' }}><b>Moiki Vocalizer</b> : transformez vos histoires faites avec <a href="https://moiki.fr" target="_blank" rel="noopener noreferrer">Moiki</a> en audio !</p>
+          {/*<Button className="link-button" as='a' href="https://github.com/kaelhem/moiki-vocalizer" target="_blank" primary size="big" style={{ marginBottom: '2em' }}>Comment ça marche ?</Button>*/}
+          <div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', width: 500, margin: 'auto' }}>
             <Divider horizontal>en bref</Divider>
-            <ul style={{ margin: '2em auto', marginTop: 0, fontSize: '1.2em', lineHeight: '1.2em' }}>
-              <li>enregistrements avec <b>micro</b> ou <b>synthèse vocale</b> 🎙️</li>
-              <li>conservation des <b>actions</b> et <b>conditions</b> ⚙️</li>
-              <li>conservation des <b>boucles</b> et <b>effets sonores</b> 🎵</li>
-              <li>export en html5 🔥</li>
-              <li>export vers <a href="https://github.com/marian-m12l/studio" target="_blank" rel="noopener noreferrer">STUdio</a>* 🎉</li>
+            <ul style={{ margin: '2em auto', marginTop: 0, fontSize: '1.2em', lineHeight: '1.2em', listStyleType: 'none' }}>
+              <li><span role="img" aria-label="Microphone">🎙️</span> enregistrements avec <b>micro</b> ou <b>synthèse vocale</b></li>
+              <li><span role="img" aria-label="Snowman">♻️</span> conservation des <b>actions</b> et <b>conditions</b></li>
+              <li><span role="img" aria-label="Musique">🎵</span> conservation des <b>boucles</b> et <b>effets sonores</b></li>
+              <li><span role="img" aria-label="Feu">🔥</span> export en html5</li>
+              <li><span role="img" aria-label="Licorne">🦄</span> export vers <a href="https://github.com/marian-m12l/studio" target="_blank" rel="noopener noreferrer">STUdio</a>*</li>
             </ul>
           </div>
           <Divider />
