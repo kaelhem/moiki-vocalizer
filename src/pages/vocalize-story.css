@@ -1,0 +1,43 @@
+.vocalize-percent-box {
+  display: flex;
+  align-items: center;
+  margin-right: 5px;
+  padding: 0px 1em;
+  border-radius: 4px;
+  background: rgb(211, 227, 243);
+  font-size: 2em;
+  color: rgb(21, 79, 107);
+  font-weight: bold;
+  width: 100px;
+  text-align: center;
+  justify-content: center;
+}
+
+.filter-box {
+  display: flex;
+  flex-grow: 1;
+  align-items: center;
+  margin-bottom: 5px;
+  background: rgb(242, 242, 242);
+  border-radius: 4px;
+  padding: 0px 14px;
+}
+
+.filter-box .ui.toggle.checkbox .box,
+.filter-box .ui.toggle.checkbox label,
+.filter-box > span {
+  color: #5a5a5a;
+  font-style: italic;
+}
+
+.story-title {
+  padding: 0px 0.3em;
+  font-size: 1.2em;
+  line-height: 1.2em;
+  margin: 0px;
+  color: rgb(75, 125, 191);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 370px;
+}

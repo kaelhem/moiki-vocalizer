@@ -6,12 +6,12 @@ import { ReactMic } from '@matuschek/react-mic'
 import SpeechSynthesisRecorder from 'libs/speech-synthesis-recorder'
 import { AudioPlayerProvider } from 'react-use-audio-player'
 import AudioPlayer from 'components/audio-player'
-import { Button, Modal, Label } from 'semantic-ui-react'
+import { Button, Modal, Label, Select, Image, Header, List, Popup } from 'semantic-ui-react'
 import moment from 'moment'
 import './sequence-vocalizer.css'
 
-let isSpeechSynthesis = false
 let cancelled = false
+let isSpeechSynthesis = false
 
 const MicModal = (props) => {
   const {
@@ -20,18 +20,23 @@ const MicModal = (props) => {
     speechSettings,
     onClose,
     automaticVocalization,
+    safeRec,
     onLoadNextSequence,
     onLoadPreviousSequence,
     onStopAutomaticVocalization,
     onSequenceUpdated,
     configVoicesList,
-    defaultVoice
+    defaultVoice,
+    onSetVoice
   } = props
 
   const [isRecording, setIsRecording] = useState(false)
   const [blobSoundURI, setBlobSoundURI] = useState(null)
   const [isConverting, setIsConverting] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [currentSpeechRecorder, setCurrentSpeechRecorder] = useState(null)
+  const [isOpenVoiceList, setIsOpenVoiceList] = useState(false)
+  const [isVocal, setIsVocal] = useState(false)
 
   const onSoundLoaded = (event, err, buffer) => {
     ipc.removeListener('sound-file-loaded', onSoundLoaded)
@@ -52,6 +57,8 @@ const MicModal = (props) => {
     cancelled = false
     if (sequence && sequence.hasSound) {
       loadSound()
+    } else {
+      setBlobSoundURI(null)
     }
     return () => {
       cancelled = true
@@ -74,30 +81,42 @@ const MicModal = (props) => {
       }
       sequence.hasSound = true
       setIsConverting(false)
+      setIsVocal(false)
       isSpeechSynthesis = false
-      const currentIndex = story.nodes.findIndex(x => x.id === sequence.id)
-      onLoadNextSequence()
+      if (automaticVocalization) {
+        onLoadNextSequence()
+      }
     }
   }
 
   useEffect(() => {
     if (automaticVocalization && sequence) {
-      recordSpeech()
+      if (safeRec && sequence.hasSound) {
+        onLoadNextSequence()
+      } else {
+        recordSpeech()
+      }
     }
   }, [automaticVocalization, sequence])
 
-  const onStop = async (blob, blobURL=null) => {
+  const onStop = (blob, blobURL=null, origin) => {
+    console.log('stop from:', origin, isSpeechSynthesis, sequence)
     setIsRecording(false)
-    setIsConverting(true)
-    setBlobSoundURI(blobURL || URL.createObjectURL(blob))
-    
-    onSequenceUpdated && onSequenceUpdated(sequence, blob)
-    
-    const { folderName } = story.projectInfo
-    const fileName = sequence.id
-    const ab = await blob.arrayBuffer()
-    ipc.on('ffmpeg-convert-complete', onConvertComplete)
-    ipc.send('ffmpeg-convert-webm2mp3', ab, folderName, fileName)
+    if ((isSpeechSynthesis && origin === 'recordSpeech') || (!isSpeechSynthesis && origin !== 'recordSpeech') || isVocal) {
+      console.log('-> will convert')
+      setIsConverting(true)
+      setBlobSoundURI(blobURL || URL.createObjectURL(blob))
+      
+      onSequenceUpdated && onSequenceUpdated(sequence, blob)
+      
+      const { folderName } = story.projectInfo
+      const fileName = sequence.id
+      //const ab = await blob.arrayBuffer()
+      blob.arrayBuffer().then(ab => {
+        ipc.on('ffmpeg-convert-complete', onConvertComplete)
+        ipc.send('ffmpeg-convert-webm2mp3', ab, folderName, fileName)
+      })
+    }
   }
 
   const recordSpeech = () => {
@@ -112,30 +131,69 @@ const MicModal = (props) => {
       rate: 1, // 1.05
       volume: 2
     }
-    const opts = speechSettings || (defaultVoice && defaultVoice.data) ? {
+    const opts = (speechSettings || defaultVoice).data ? {
       ...defaultUtteranceOptions,
-      ...(speechSettings || defaultVoice.data)
+      ...(speechSettings || defaultVoice).data
     } : defaultUtteranceOptions
-    new SpeechSynthesisRecorder({
+    const speechRecorder = new SpeechSynthesisRecorder({
       text: sequence.content, 
       utteranceOptions: opts
-    }).start()
-      .then(tts => tts.blob())
-      .then((blob) => onStop(blob.data))
+    })
+    setCurrentSpeechRecorder(speechRecorder)
+    speechRecorder.start().then(async (tts) => {
+      if (tts.cancelled) {
+        return
+      }
+      const blob = await tts.blob()
+      onStop(blob.data, null, 'recordSpeech')
+    })
   }
 
   const stopSpeech = () => {
     setIsRecording(false)
     onStopAutomaticVocalization()
+    if (currentSpeechRecorder) {
+      currentSpeechRecorder.cancel()
+      setCurrentSpeechRecorder(null)
+    }
   }
 
-  return sequence !== null ? (
+  const onSelectVoice = (voice) => {
+    setIsOpenVoiceList(false)
+    onSetVoice(voice)
+  }
+
+  const onVocalStart = () => {
+    console.log('on start:', sequence)
+    //isSpeechSynthesis = false
+    setIsVocal(true)
+    setIsRecording(true)
+  }
+
+  if (!sequence) {
+    return null
+  }
+
+  const currentIndex = story.nodes.findIndex(x => x.id === sequence.id)
+  const hasPrevious = currentIndex > 0
+  const hasNext = currentIndex < story.nodes.length - 1
+
+  return (
     <Modal open={true} className="mic-modal">
-      <Modal.Header style={{ background: '#4c77ac', color: '#fff' }}>
-        { sequence && (
+      <Modal.Header style={{ background: '#4c77ac', color: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', width: 320 }}>
           <Label style={{ marginRight: 10 }} content={<span style={{ fontSize: '1.5em' }}>{ sequence.id }</span>} />
-        )}
-        Vocalisation de séquence
+        </div>
+        <div style={{ flexGrow: 1, display: 'flex' }}>
+          <div style={{ textAlign: 'center', lineHeight: '20px' }}>
+            Vocalisation de séquence
+            <div>{currentIndex + 1} / {story.nodes.length}</div>
+          </div>
+        </div>
+        <div>
+          <Button disabled={!hasPrevious || isRecording || isConverting} icon="arrow left" onClick={onLoadPreviousSequence} />
+          <Button disabled={!hasNext || isRecording || isConverting} icon="arrow right" onClick={onLoadNextSequence} />
+        </div>
       </Modal.Header>
       <Modal.Content>
         <div style={{ display: 'flex' }}>
@@ -148,7 +206,7 @@ const MicModal = (props) => {
             <ReactMic
               record={isRecording}
               className="sound-wave"
-              onStop={({blob, blobURL}) => !isSpeechSynthesis && onStop(blob, blobURL)}
+              onStop={({blob, blobURL}) => !isSpeechSynthesis && onStop(blob, blobURL, 'reactMic')}
               mimeType="audio/mp3"
               strokeColor="#000000"
               backgroundColor="#dadada"
@@ -168,8 +226,34 @@ const MicModal = (props) => {
                     />
                   </AudioPlayerProvider>
                 )}
-                <Button style={{ margin: 2 }} disabled={isRecording || isConverting || isPlaying} onClick={() => recordSpeech()}>text-to-speech recorder (robot)</Button>
-                <Button style={{ margin: 2 }} disabled={isRecording || isConverting || isPlaying} positive onClick={() => setIsRecording(true)}>Start</Button>
+                {
+                  (speechSettings || defaultVoice) && (
+                    <Button.Group style={{ margin: 2 }}>
+                      <Popup
+                        on='click'
+                        open={isOpenVoiceList}
+                        onOpen={() => setIsOpenVoiceList(true)}
+                        onClose={() => setIsOpenVoiceList(false)}
+                        trigger={ <Button color='grey' style={{ width: 108, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', padding: 3 }}>{(speechSettings || defaultVoice).label}</Button> }
+                      >
+                        <div style={{width: 180}}>
+                          <Header content={ `Voix de synthèse (${configVoicesList.length})`} />
+                          <List divided selection verticalAlign='middle'  style={{ minHeight: 50, maxHeight: 200, overflowY: 'auto' }}>
+                            {configVoicesList.map(voice => (
+                              <List.Item key={'voice-' + voice.id} onClick={() => onSelectVoice(voice)} style={{ fontWeight: voice.id === (speechSettings || defaultVoice).id ? 'bold' : 'normal' }}>
+                                { voice.label }
+                              </List.Item>
+                            ))}
+                          </List>
+                        </div>
+                      </Popup>
+                      <Button style={{ paddingRight: '1.2em' }} onClick={() => recordSpeech()}>
+                        <Image src='assets/robot.svg' style={{width: 30}} />
+                      </Button>
+                    </Button.Group>
+                  )
+                }
+                <Button style={{ margin: 2 }} disabled={isRecording || isConverting || isPlaying} positive onClick={() => onVocalStart()}>Start</Button>
               </div>
             )}
             <Button style={{ margin: 2 }} disabled={!isRecording || isConverting || isPlaying} negative onClick={() => isSpeechSynthesis ? stopSpeech() : setIsRecording(false)}>Stop</Button>
@@ -178,7 +262,8 @@ const MicModal = (props) => {
           <div>
             isRecording: { isRecording ? '1' : '0' }<br/>
             isConverting: { isConverting ? '1' : '0' }<br/>
-            isPlaying: { isPlaying ? '1' : '0' }
+            isPlaying: { isPlaying ? '1' : '0' }<br/>
+            isSpeechSynthesis: { isSpeechSynthesis ? '1' : '0' }
           </div>
           */}
         </div>
@@ -191,7 +276,7 @@ const MicModal = (props) => {
         >Fermer</Button>
       </Modal.Actions>
     </Modal>
-  ) : null
+  )
 }
 
 const mapStateToProps = (state) => ({

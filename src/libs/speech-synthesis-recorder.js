@@ -13,6 +13,7 @@ export default class SpeechSynthesisRecorder {
     text = '', utteranceOptions = {}, recorderOptions = {}, dataType = ''
   }) {
     if (text === '') throw new Error('no words to synthesize')
+    this.cancelled = false
     this.dataType = dataType
     this.text = text
     this.mimeType = MediaRecorder.isTypeSupported('audio/webm; codecs=opus') ? 'audio/webm; codecs=opus' : 'audio/ogg; codecs=opus'
@@ -36,13 +37,15 @@ export default class SpeechSynthesisRecorder {
         }
         this.speechSynthesis.getVoices()
       }
-      let {
-        lang, rate, pitch, volume
-      } = utteranceOptions;
-      Object.assign(this.utterance, {
-        lang, rate, pitch, volume
-      })
+      let { lang, rate, pitch, volume } = utteranceOptions
+      Object.assign(this.utterance, { lang, rate, pitch, volume })
     }
+  }
+  cancel() {
+    //if (this.speechSynthesis.speaking || this.speechSynthesis.pending) {
+      this.cancelled = true
+      this.speechSynthesis.cancel()
+    //}
   }
   start(text = '') {
     if (text) this.text = text

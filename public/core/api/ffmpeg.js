@@ -84,8 +84,10 @@ const mergeSoundsWithDelay = (fileA, fileB, output, delay, cb) => {
     .input(fileA)
     .input(fileB)
     .complexFilter([
-      '[0]adelay=0[0a]',
-      '[1]adelay=' + delay + '|' + delay + '[1a]',
+      '[0]volume=1[a]',
+      '[1:0]volume=0.35[b]',
+      '[a]adelay=0[0a]',
+      '[b]adelay=' + delay + '|' + delay + '[1a]',
       '[0a][1a]amix=2'
     ])
     .output(output)

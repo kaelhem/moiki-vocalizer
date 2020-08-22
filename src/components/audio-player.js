@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { useAudioPlayer } from 'react-use-audio-player'
 import { Button } from 'semantic-ui-react'
 
-const AudioPlayer = ({ file, disabled, onPlay, onStop, autoplay=false }) => {
+const AudioPlayer = ({ file, disabled, onPlay, onStop, autoplay=false, circular=false }) => {
   const { togglePlayPause, ready, loading, playing } = useAudioPlayer({
     src: file,
     format: "mp3",
@@ -24,6 +24,7 @@ const AudioPlayer = ({ file, disabled, onPlay, onStop, autoplay=false }) => {
       disabled={(!ready && !loading) || disabled}
       icon={playing ? "pause" : "play"}
       primary
+      circular={circular}
       onClick={togglePlayPause}
     />
   )

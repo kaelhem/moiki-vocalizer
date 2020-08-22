@@ -2,9 +2,8 @@ import React, { useState, Fragment } from 'react'
 import { selectors as settingsSelectors } from 'core/reducers/settings'
 import { connect } from 'react-redux'
 import SpeechSynthesisRecorder from 'libs/speech-synthesis-recorder'
-import { Button, Modal, Select, Divider, Loader, Radio, Icon } from 'semantic-ui-react'
+import { Button, Modal, Select, Divider, Radio, Icon } from 'semantic-ui-react'
 import moment from 'moment'
-import { stat } from 'fs'
 
 const GenerateTtsModal = (props) => {
   const {
@@ -33,10 +32,18 @@ const GenerateTtsModal = (props) => {
     }).start()
   }
 
-  const duration = voice ? moment.duration((stats.estimatedTime / voice.data.rate) + (stats.numNodes / 2), 's') : 0
+  const nodesWithoutSounds = stats.nodes.filter(x => !x.hasSound)
+  const sequencesToVocalize = safeRec ? nodesWithoutSounds : stats.nodes
+  const numSequencesToVocalize = sequencesToVocalize.length
+  const estimatedTime = numSequencesToVocalize > 0 ? sequencesToVocalize.map(x => x.estimatedTime).reduce((acc, current) => acc + current) : 0
+
+  const duration = voice ? moment.duration((estimatedTime / voice.data.rate * 1.1) + (numSequencesToVocalize / 1.5), 's').as('milliseconds') : 0
   if (duration) {
-    console.log('devrait durer: : ', moment.utc(duration.as('milliseconds')).format('mm:ss'))
+    console.log('devrait durer: : ', moment.utc(duration).format('HH:mm:ss'))
   }
+
+  
+
   return (
     <Modal
       size="tiny"
@@ -48,8 +55,8 @@ const GenerateTtsModal = (props) => {
       </Modal.Header>
       <Modal.Content>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <p>L'enregistrement de la synthèse vocale se fait en <b>temps réel</b> et utilise le micro.</p>
-          <p>Une fois l'enregistrement lancé, les séquences seront lues les unes après les autres. Veillez à faire cela dans une pièce calme, et à <b>désactiver la mise en veille</b> le temps de l'opération.</p>
+          <p>L'enregistrement de la synthèse vocale se fait en <b>temps réel</b>.</p>
+          <p>Une fois l'enregistrement lancé, les séquences seront lues les unes après les autres. Veuillez <b>désactiver la mise en veille</b> le temps de la procédure.</p>
           <Divider />
           { voice ? (
             <Fragment>
@@ -89,12 +96,16 @@ const GenerateTtsModal = (props) => {
         >Annuler</Button>
         <Button
           id='modal-validate-button'
-          onClick={ () => onValidate(voice.data) }
-          disabled={ !voice }
+          onClick={ () => onValidate(voice, safeRec) }
+          disabled={ !voice || numSequencesToVocalize === 0}
           primary
         >
-          <div>Commencer</div>
-          { duration > 0 && (<em style={{ fontWeight: 'normal' }}>temps estimé: {duration.humanize()}</em>)}
+          <div>Vocaliser {numSequencesToVocalize} séquence{numSequencesToVocalize > 1 && 's'}</div>
+          { numSequencesToVocalize === 0 ? (
+            <em>aucune séquence à vocaliser !</em>
+          ) : (
+            duration > 0 && (<em style={{ fontWeight: 'normal' }}>temps estimé: {moment.duration(duration).humanize()}</em>)
+          )}
         </Button>
       </Modal.Actions>
     </Modal>

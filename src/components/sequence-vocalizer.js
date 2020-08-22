@@ -2,7 +2,7 @@ import React, { forwardRef, useImperativeHandle, useState, Fragment } from 'reac
 import { ipcRenderer as ipc } from 'electron'
 import { AudioPlayerProvider } from 'react-use-audio-player'
 import AudioPlayer from 'components/audio-player'
-import { Button, Segment, Label } from 'semantic-ui-react'
+import { Button, Segment, Label, Icon } from 'semantic-ui-react'
 import './sequence-vocalizer.css'
 
 const SequenceLabel = ({index, identifier}) => (
@@ -10,7 +10,7 @@ const SequenceLabel = ({index, identifier}) => (
     attached='top left'
     content={
       <Fragment>
-        <span style={{ fontSize: '1.5em' }}>{ index }</span> (<em>{identifier}</em>)
+        <span style={{ fontSize: '1.5em' }}>{ index }</span> <em>{identifier}</em>
       </Fragment>
     }
   />
@@ -71,7 +71,9 @@ const SequenceVocalizer = forwardRef((props, ref) => {
       <Segment padded style={{ paddingTop: '4em' }}>
         <SequenceLabel index={index} identifier={sequence.id} />
         <div className="attached" style={{ position: 'absolute', top: 7, right: 5, display: 'flex' }}>
-          <Button primary onClick={() => editSound(sequence)}>{ hasSound ? 'Modifier' : 'Vocaliser' }</Button>
+          <Button primary onClick={() => editSound(sequence)}>
+            <Icon name='edit' /> { hasSound ? 'Modifier' : 'Vocaliser' }
+          </Button>
         </div>
         <div style={{ display: 'flex' }}>
           <div className="sequence-content">{sequence.content}</div>
@@ -82,6 +84,7 @@ const SequenceVocalizer = forwardRef((props, ref) => {
                   file={blobSoundURI}
                   autoplay={autoplay}
                   onStop={onStop}
+                  circular={true}
                 />
               </AudioPlayerProvider>
             ) : (
@@ -91,6 +94,7 @@ const SequenceVocalizer = forwardRef((props, ref) => {
                 disabled={!hasSound}
                 icon={isPlaying ? "pause" : "play"}
                 primary={hasSound}
+                circular={true}
                 onClick={onPlay}
               />
             )}
