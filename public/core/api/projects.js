@@ -31,8 +31,14 @@ const list = (event) => {
     const dirNames = getProjectsList()
     for (let dir of dirNames) {
       const infoFilePath = path.join(PROJECT_PATH, dir, 'project.json')
-      const { projectInfo, cover } = JSON.parse(fs.readFileSync(infoFilePath))
-      projects.push({ ...projectInfo, cover })
+      const { projectInfo, cover, nodes } = JSON.parse(fs.readFileSync(infoFilePath))
+      let alreadyVocalized = 0
+      for (let node of nodes) {
+        if (fs.existsSync(path.join(getVocalsFolder(dir), node.id + '.mp3'))) {
+          ++alreadyVocalized
+        }
+      }
+      projects.push({ ...projectInfo, numVocalized: alreadyVocalized, cover })
     }
     projects = projects.sort((a, b) => new Date(b.creationDate) - new Date(a.creationDate))
     event.sender.send('IPC_REDUX_MESSAGE', 'projects-list', null, projects)

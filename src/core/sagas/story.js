@@ -46,10 +46,18 @@ export function *importSaga(action) {
   }
 }
 
-export function *exportStudioSaga() {
+export function *exportSaga(action) {
   try {
     const story = yield select(storySelectors.story)
-    yield put(ipcSend('export-to-studio', story))
+    switch (action.type) {
+      case storyTypes.EXPORT_STUDIO: {
+        yield put(ipcSend('export-to-studio', story))
+        break
+      }
+      default: {
+        yield put(ipcSend('export-to-html', story))
+      }
+    }
     let isFinished = false
     let payload = null
     while (!isFinished) {
@@ -103,8 +111,11 @@ export function *watchImport() {
   yield takeEvery(storyTypes.IMPORT, importSaga)
 }
 
-export function *watchExportStudio() {
-  yield takeEvery(storyTypes.EXPORT_STUDIO, exportStudioSaga)
+export function *watchExport() {
+  yield takeEvery([
+    storyTypes.EXPORT_STUDIO,
+    storyTypes.EXPORT_HTML
+  ], exportSaga)
 }
 
 export function *watchClear() {
@@ -117,7 +128,7 @@ export function *storySaga() {
   yield all([
     fork(watchLoad),
     fork(watchImport),
-    fork(watchExportStudio),
+    fork(watchExport),
     fork(watchClear),
   ])
 }

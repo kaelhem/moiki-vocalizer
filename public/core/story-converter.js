@@ -149,7 +149,7 @@ module.exports = (story) => {
       }
       removeConditions(sequences.find(({id}) => id === lastChain.next), [...objects], [...storyPath], [...history])
     } else if (lastChain.choices && lastChain.choices.length > 0) {
-      for (choice of lastChain.choices) {
+      for (let choice of lastChain.choices) {
         let newObjects = [...objects]
         if (choice.action && choice.action.params) {
           if (objects.includes(choice.action.params)) {
@@ -286,7 +286,7 @@ module.exports = (story) => {
       cutSequences.push(seq)
     } else if (currentChain.length > 0) {
       const [firstChain] = currentChain
-      const { id, key, isNew } = getSequenceUUID(firstChain.id, lastChain.listObjects)
+      const { id } = getSequenceUUID(firstChain.id, lastChain.listObjects)
       cutSequences.push({
         id: firstChain.id,
         uuid: id,

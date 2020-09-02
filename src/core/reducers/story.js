@@ -7,6 +7,7 @@ export const types = {
   IMPORT_SUCCESS: 'moiki-voc/story/IMPORT_SUCCESS',
   IMPORT_ERROR: 'moiki-voc/story/IMPORT_ERROR',
   EXPORT_STUDIO: 'moiki-voc/story/EXPORT_STUDIO',
+  EXPORT_HTML: 'moiki-voc/story/EXPORT_HTML',
   EXPORT_SUCCESS: 'moiki-voc/story/EXPORT_SUCCESS',
   EXPORT_ERROR: 'moiki-voc/story/EXPORT_ERROR',
   EXPORT_PENDING: 'moiki-voc/story/EXPORT_PENDING',
@@ -50,6 +51,7 @@ export default function storyReducer(state = initialState, action = {}) {
         pending: false
       }
     }
+    case types.EXPORT_HTML: 
     case types.EXPORT_STUDIO: {
       return {
         ...state,
@@ -102,6 +104,7 @@ export const actions = {
   import: (file) => ({type: types.IMPORT, payload: file}),
   exportCancel: () => ({type:types.EXPORT_CANCEL}),
   exportToStudio: () => ({type: types.EXPORT_STUDIO}),
+  exportToHtml: () => ({type: types.EXPORT_HTML}),
   clear: () => ({type: types.CLEAR })
 }
 

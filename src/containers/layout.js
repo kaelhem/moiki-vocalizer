@@ -2,6 +2,7 @@ import React from 'react'
 import { version } from '../../package.json'
 import { HEADER_HEIGHT, FOOTER_HEIGHT } from '../constants'
 import AppMenu from 'containers/menu'
+import ScrollToTop from 'components/scroll-to-top'
 
 const Layout = ({ children }) => {
   return (
@@ -14,7 +15,8 @@ const Layout = ({ children }) => {
           </div>
         </div>
         <div className="content">
-          <div style={{ width: '100%', height: 'calc(100vh - ' + ( HEADER_HEIGHT ) + 'px)', overflowY: 'auto' }}>
+          <div id='scrolling-main-content' style={{ width: '100%', height: 'calc(100vh - ' + ( HEADER_HEIGHT ) + 'px)', overflowY: 'auto' }}>
+            <ScrollToTop target='scrolling-main-content' />
             <div style={{ padding: 20 }}>
               { children }
             </div>

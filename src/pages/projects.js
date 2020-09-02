@@ -3,7 +3,7 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { actions as storyActions } from 'core/reducers/story'
 import { actions as projectsActions } from 'core/reducers/projects'
-import { Segment, Divider, Loader, Header, Card, Icon, Image } from 'semantic-ui-react'
+import { Segment, Loader, Header, Card, Icon, Image, Label } from 'semantic-ui-react'
 import Dropzone from 'components/dropzone'
 import moment from 'moment'
 import './projects.css'
@@ -68,12 +68,17 @@ const Projects = (props) => {
                   ) : (
                     <Image src={'/assets/image-wireframe.png'} wrapped ui={false} style={{ height: 225, display: 'flex' }} />
                   )}
+                  { project.numNodes === project.numVocalized && (
+                    <Label ribbon color='green' style={{ position: 'absolute', left: -14, top: 10 }}>
+                      <Icon name='check' /> fini !
+                    </Label>
+                  )}
                   <Card.Content extra header={project.title} />
                   <Card.Content extra>
                     <div><Icon name='calendar alternate' /> créée {moment(project.creationDate).fromNow()}</div>
                   </Card.Content>
                   <Card.Content extra>
-                    <Icon name='sound' /> {project.numNodes} passages à vocaliser
+                    <Icon name='sound' /> {project.numVocalized} / {project.numNodes} passages vocalisés
                   </Card.Content>
                 </Card>
               )) : (

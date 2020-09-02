@@ -22,10 +22,10 @@ const createCoverNode = (name, linkTo) => ({
   squareOne: true
 })
 
-const createJson = (story, descriptor, cover=null) => {
+const createJson = (story, descriptor) => {
   const { uuidSequencesMap, sequences, variables } = descriptor
   const firstNode = sequences.find(x => x.id === story.firstSequence)
-  const coverNode = cover || createCoverNode(story.meta.name, firstNode.uuid + '-action')
+  const coverNode = createCoverNode(story.meta.name, firstNode.uuid + '-action')
 
   const actions = []
   const stages = []
@@ -238,7 +238,7 @@ const createJson = (story, descriptor, cover=null) => {
     }
   }
   
-  const json = {
+  return {
     format: 'v1',
     title: story.meta.name,
     version: 1,
@@ -246,10 +246,8 @@ const createJson = (story, descriptor, cover=null) => {
     stageNodes: [coverNode, ...stages],
     actionNodes: [...actions]
   }
-  return json
 }
 
 module.exports = {
-  createCoverNode,
   createJson
 }

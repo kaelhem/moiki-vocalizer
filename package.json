@@ -16,7 +16,7 @@
     "dev": "concurrently \"BROWSER=none yarn start\" \"wait-on http://localhost:3000 && electron .\"",
     "postinstall": "electron-builder install-app-deps",
     "preelectron-pack": "yarn build",
-    "electron-pack": "electron-builder build -ml"
+    "electron-pack": "electron-builder build -m"
   },
   "dependencies": {
     "@matuschek/react-mic": "^1.2.2",

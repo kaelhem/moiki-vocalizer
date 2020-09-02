@@ -1,9 +1,8 @@
-import React, { useState, useEffect, Fragment } from 'react'
+import React, { useState, Fragment } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { actions as storyActions } from 'core/reducers/story'
-import { ipcRenderer as ipc } from 'electron'
-import { Button, Modal, Header, Loader, Icon, Label, Divider, Image } from 'semantic-ui-react'
+import { Button, Modal, Loader, Icon, Label, Divider, Image } from 'semantic-ui-react'
 
 const listStatus = [{
   status: 0,
@@ -25,8 +24,8 @@ const listStatus = [{
 
 const ExportModal = (props) => {
   const {
-    story,
     exportToStudio,
+    exportToHtml,
     onClose,
     pendingExport,
     exportCancel,
@@ -74,6 +73,11 @@ const ExportModal = (props) => {
     return <Label size='mini' color='green'>ok</Label>
   }
 
+  const exportHtml = () => {
+    setIsExporting(true)
+    exportToHtml()
+  }
+
   const exportLunii = () => {
     setIsExporting(true)
     exportToStudio()
@@ -118,7 +122,7 @@ const ExportModal = (props) => {
           ) : (
             <Fragment>
               <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', margin: '1em 0' }}>
-                <Button className='button-with-image' primary onClick={ onClose }>
+                <Button className='button-with-image' primary onClick={ exportHtml }>
                   <div style={{fontSize: '1.2em', fontWeight: 'bold' }}>Export HTML5</div>
                   <Image src={'assets/html5-icon.png'} />
                   <div><em>pour que ça marche dans un navigateur web</em></div>
@@ -144,12 +148,12 @@ const ExportModal = (props) => {
 }
 
 const mapStateToProps = (state) => ({
-  story: state.story.story,
   pendingExport: state.story.pendingExport,
   exportPath: state.story.exportPath
 })
 
 const mapDispatchToProps = (dispatch) => ({
+  exportToHtml: bindActionCreators(storyActions.exportToHtml, dispatch),
   exportToStudio: bindActionCreators(storyActions.exportToStudio, dispatch),
   exportCancel: bindActionCreators(storyActions.exportCancel, dispatch)
 })
