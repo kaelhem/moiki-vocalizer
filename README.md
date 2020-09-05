@@ -18,6 +18,8 @@ Cet outil permet de transformer une histoire faite avec [Moiki](https://moiki.fr
 
 ![Image](../master/assets/screenshots/vocalize-story.png?raw=true)
 
+![Image](../master/assets/screenshots/record.png?raw=true)
+
 ![Image](../master/assets/screenshots/export-modal.png?raw=true)
 
 ![Image](../master/assets/screenshots/export-report.png?raw=true)
