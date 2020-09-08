@@ -14,9 +14,9 @@ Moiki Vocalizer est une application du bureau multi-plateformes permettant de tr
 
 # Installation
 
-Pour installer Moiki Vocalizer, veuillez télécharger l'archive correspondant à votre système de [la page des dernières releases](https://github.com/kaelhem/moiki-vocalizer/releases/tag/v0.1.0)
+Pour installer Moiki Vocalizer, veuillez télécharger l'archive correspondant à votre système depuis [la page des dernières releases](https://github.com/kaelhem/moiki-vocalizer/releases/tag/v0.1.0)
 
-Au premier lancement, Moiki Vocalizer téléchargera la librairie FFMEG et demandera l'accès au micro (si nécéssaire). Veuillez suivre les instructions pour le bon fonctionnement de l'application.
+Au premier lancement, Moiki Vocalizer téléchargera la librairie FFMPEG et demandera l'accès au micro (si nécéssaire). Veuillez suivre les instructions pour le bon fonctionnement de l'application.
 
 > Les éxecutables ne sont pas signés. Sur macOS vous devrez éventuellement aller dans `Préférences système/Sécurité et confidentialité` et autoriser l'ouverture de l'application.
 
@@ -25,9 +25,9 @@ Au premier lancement, Moiki Vocalizer téléchargera la librairie FFMEG et deman
 En attendant une documentation plus détaillée, voici la marche à suivre pour une prise en main rapide :
 
 1. Créer une histoire sur [Moiki](https://moiki.fr) et l'exporter en JSON
-2. Glisser le fichier _.zip_ obtenu dans l'encart vert de la page "Projets" de Moiki Vocalizer
+2. Glisser le fichier _.zip_ obtenu dans l'encart bleu de la page "Projets" de Moiki Vocalizer
 3. Un nouveau projet est créé avec l'ensemble des textes à vocaliser. Pour chacun d'entre eux, vous pouvez soit générer un fichier audio basé sur la synthèse vocale, soit vous enregistrer vous-même. _Pour utiliser la synthèse vocale vous devrez avant tout paramétrer une voix._
-4. Lorsque la page de votre projet affiche _100%_, vous pouvez l'exporter. Soyez patients, l'opération peut être longue !
+4. Lorsque tous les textes sont vocalisés, la page de votre projet affiche _100%_ et vous pouvez l'exporter. Soyez patients, l'opération peut être longue !
 
 ### Note sur l'enregistrement de la synthèse vocale
 
