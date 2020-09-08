@@ -29,9 +29,10 @@ En attendant une documentation plus détaillée, voici la marche à suivre pour 
 3. Un nouveau projet est créé avec l'ensemble des textes à vocaliser. Pour chacun d'entre eux, vous pouvez soit générer un fichier audio basé sur la synthèse vocale, soit vous enregistrer vous-même. _Pour utiliser la synthèse vocale vous devrez avant tout paramétrer une voix._
 4. Lorsque tous les textes sont vocalisés, la page de votre projet affiche _100%_ et vous pouvez l'exporter. Soyez patients, l'opération peut être longue !
 
-### Note sur l'enregistrement de la synthèse vocale
+### Notes sur l'enregistrement de la synthèse vocale
 
 La technique utilisée pour enregistrer la syntèse vocale se fait en **temps réél**. Cela signifie que l'enregistrement peut prendre un certain temps.
+
 Par ailleurs, si un micro est branché (ou intégré, comme sur un ordinateur portable), il se peut que l'enregistrement de la synthèse vocale se superpose aux sons captés par le micro (c'est le cas sur un MacBookPro). Il n'y a pas vraiment de solutions pour cela, mis à part de lancer l'enregistrement dans une pièce calme !
 Sur un ordinateur ne possédant pas de micro, l'enregistrement de la synthèse vocale se passe correctement.
 
