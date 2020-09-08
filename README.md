@@ -14,7 +14,7 @@ Moiki Vocalizer est une application du bureau multi-plateformes permettant de tr
 
 # Installation
 
-Pour installer Moiki Vocalizer, veuillez télécharger l'archive correspondant à votre système depuis [la page des dernières releases](https://github.com/kaelhem/moiki-vocalizer/releases/tag/v0.1.0)
+Pour installer Moiki Vocalizer, veuillez télécharger l'archive correspondant à votre système depuis [la page des dernières releases](https://github.com/kaelhem/moiki-vocalizer/releases/latest)
 
 Au premier lancement, Moiki Vocalizer téléchargera la librairie FFMPEG et demandera l'accès au micro (si nécéssaire). Veuillez suivre les instructions pour le bon fonctionnement de l'application.
 
