@@ -2,7 +2,7 @@
 
 ![Image](../master/public/logo192.png?raw=true)
 
-Moiki Vocalizer est une application du bureau multi-plateformes permettant de transformer une histoire faite avec [Moiki](https://moiki.fr) en conte audio interactif.
+Moiki Vocalizer est une application de bureau multiplateforme permettant de transformer une histoire faite avec [Moiki](https://moiki.fr) en conte audio interactif.
 
 # Fonctionnalités
 
@@ -16,7 +16,7 @@ Moiki Vocalizer est une application du bureau multi-plateformes permettant de tr
 
 Pour installer Moiki Vocalizer, veuillez télécharger l'archive correspondant à votre système depuis [la page des dernières releases](https://github.com/kaelhem/moiki-vocalizer/releases/latest)
 
-Au premier lancement, Moiki Vocalizer téléchargera la librairie FFMPEG et demandera l'accès au micro (si nécéssaire). Veuillez suivre les instructions pour le bon fonctionnement de l'application.
+Au premier lancement, Moiki Vocalizer téléchargera la librairie FFMPEG et demandera l'accès au micro (si nécessaire). Veuillez suivre les instructions pour le bon fonctionnement de l'application.
 
 > Les éxecutables ne sont pas signés. Sur macOS vous devrez éventuellement aller dans `Préférences système/Sécurité et confidentialité` et autoriser l'ouverture de l'application.
 
