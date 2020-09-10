@@ -50,7 +50,7 @@ Sur un ordinateur ne possédant pas de micro, l'enregistrement de la synthèse v
 
 # Développement
 
-Moiki Vocalizer est application react packagée avec [Electron](https://www.electronjs.org/) et bootstrappée avec [Create React App](https://github.com/facebook/create-react-app).
+Moiki Vocalizer est une application react packagée avec [Electron](https://www.electronjs.org/) et bootstrappée avec [Create React App](https://github.com/facebook/create-react-app).
 
 Afin de lancer un build, vous devrez au préalable installer [NodeJS](https://nodejs.org/en/). L'utilisation de [Yarn](https://yarnpkg.com/) est également recommandée.
 
@@ -61,10 +61,16 @@ cd moiki-vocalizer
 
 # install dependencies
 yarn
+# or
+npm i
 
 # start dev build
 yarn dev
+# or
+npm run dev
 
 # release build (note: changer au préalable la plateforme cible dans la partie scripts du fichier package.json => "electron-pack": "electron-builder build -[xxx]" où xxx est m (mac), w (windows) ou l (linux).
 yarn electron-pack
+# or
+npm run electron-pack
 ```
