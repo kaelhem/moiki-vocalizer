@@ -6,12 +6,13 @@ import { ReactMic } from '@matuschek/react-mic'
 import SpeechSynthesisRecorder from 'libs/speech-synthesis-recorder'
 import { AudioPlayerProvider } from 'react-use-audio-player'
 import AudioPlayer from 'components/audio-player'
-import { Button, Modal, Label, Select, Image, Header, List, Popup } from 'semantic-ui-react'
+import { Button, Modal, Label, Image, Header, List, Popup } from 'semantic-ui-react'
 import moment from 'moment'
 import './sequence-vocalizer.css'
 
 let cancelled = false
 let isSpeechSynthesis = false
+let currentSequence = null
 
 const MicModal = (props) => {
   const {
@@ -100,23 +101,24 @@ const MicModal = (props) => {
   }, [automaticVocalization, sequence])
 
   const onStop = (blob, blobURL=null, origin) => {
-    console.log('stop from:', origin, isSpeechSynthesis, sequence)
+    console.log('stop from:', origin, isSpeechSynthesis, sequence, currentSequence)
     setIsRecording(false)
     if ((isSpeechSynthesis && origin === 'recordSpeech') || (!isSpeechSynthesis && origin !== 'recordSpeech') || isVocal) {
       console.log('-> will convert')
       setIsConverting(true)
       setBlobSoundURI(blobURL || URL.createObjectURL(blob))
       
-      onSequenceUpdated && onSequenceUpdated(sequence, blob)
+      onSequenceUpdated && onSequenceUpdated(currentSequence || sequence, blob)
       
       const { folderName } = story.projectInfo
-      const fileName = sequence.id
+      const fileName = (currentSequence || sequence).id
       //const ab = await blob.arrayBuffer()
       blob.arrayBuffer().then(ab => {
         ipc.on('ffmpeg-convert-complete', onConvertComplete)
         ipc.send('ffmpeg-convert-webm2mp3', ab, folderName, fileName)
       })
     }
+    currentSequence = null
   }
 
   const recordSpeech = () => {
@@ -166,6 +168,7 @@ const MicModal = (props) => {
   const onVocalStart = () => {
     console.log('on start:', sequence)
     //isSpeechSynthesis = false
+    currentSequence = sequence
     setIsVocal(true)
     setIsRecording(true)
   }
