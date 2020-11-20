@@ -138,7 +138,7 @@ const exportStory = async (event, story, format) => {
         for (let i = 0; i < node.loops.length; ++i) {
           const loop = node.loops[i]
           const loopRef = story.sounds.find(({id}) => id === loop)
-          if (loop) {
+          if (loop && loopRef) {
             if (loopsToMix.length > 0) {
               const lastLoop = loopsToMix[loopsToMix.length - 1]
               lastLoop.to = delay
