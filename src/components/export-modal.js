@@ -4,23 +4,39 @@ import { bindActionCreators } from 'redux'
 import { actions as storyActions } from 'core/reducers/story'
 import { Button, Modal, Loader, Icon, Label, Divider, Image } from 'semantic-ui-react'
 
-const listStatus = [{
-  status: 0,
-  message: 'Transforme le graphe de l\'histoire en arbre linéaire'
-}, {
-  status: 1,
-  message: 'Combine les enregistrements et les effets sonores'
-}, {
-  status: 2,
-  message: 'Assemble les enregistrements par sequences'
-}, {
-  status: 3,
-  message: 'Combine les enregistrements et les boucles sonores'
-}, {
-  status: 4,
-  message: 'Exporte l\'archive au format .zip'
+const listStatus = {
+  lunii: [{
+    status: 0,
+    message: 'Transforme le graphe de l\'histoire en arbre linéaire'
+  }, {
+    status: 1,
+    message: 'Combine les enregistrements et les effets sonores'
+  }, {
+    status: 2,
+    message: 'Assemble les enregistrements par sequences'
+  }, {
+    status: 3,
+    message: 'Combine les enregistrements et les boucles sonores'
+  }, {
+    status: 4,
+    message: 'Exporte l\'archive au format .zip'
+  }],
+  html: [
+    {
+      status: 0,
+      message: 'Prepare la liste des fichiers'
+    }, {
+      status: 1,
+      message: 'Réduit le volume des boucles et effets sonores'
+    }, {
+      status: 2,
+      message: 'Création de l\'archive'
+    }, {
+      status: 3,
+      message: 'Exporte l\'archive au format .zip'
+    }
+  ]
 }
-]
 
 const ExportModal = (props) => {
   const {
@@ -74,12 +90,12 @@ const ExportModal = (props) => {
   }
 
   const exportHtml = () => {
-    setIsExporting(true)
+    setIsExporting('html')
     exportToHtml()
   }
 
   const exportLunii = () => {
-    setIsExporting(true)
+    setIsExporting('lunii')
     exportToStudio()
   }
 
@@ -105,7 +121,7 @@ const ExportModal = (props) => {
               { getStatusHeader() }
               <Divider horizontal style={{ width: '90%' }}>Détails</Divider>
               <div style={{ width: 420, marginBottom: '1em' }}>
-                { listStatus && listStatus.map(({status, message}, idx) => (
+                { listStatus[isExporting] && listStatus[isExporting].map(({status, message}, idx) => (
                   <Fragment key={'status-step-' + status}>
                     { idx > 0 && (
                       <Divider style={{ margin: '3px 0' }} />

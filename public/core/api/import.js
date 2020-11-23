@@ -67,6 +67,9 @@ const importStory = async (event, zipData) => {
     let fileContent = await file.async('string')
     if (isJS) {
       fileContent = fileContent.slice(fileContent.indexOf('{'), -1)
+      if (fileContent.slice(-1) === ';') {
+        fileContent = fileContent.slice(0, -1)
+      }
     }
     const data = JSON.parse(fileContent)
     const folderName = kebabCase(data.meta.name) + '-' + new Date().getTime()
@@ -87,13 +90,24 @@ const importStory = async (event, zipData) => {
     await generateAssetFiles(data, folderName)
     
     // copy sounds
-    const allFiles = Object.keys(zip.files).filter(f => f.startsWith('sounds/') && !zip.files[f].dir)
-    if (allFiles.length > 0) {
+    const sndFiles = Object.keys(zip.files).filter(f => f.startsWith('sounds/') && !zip.files[f].dir)
+    if (sndFiles.length > 0) {
       const sndFolder = getOrCreatePath(folderName, 'sounds')
-      for (let filePath of allFiles) {
+      for (let filePath of sndFiles) {
         const sndFilename = path.join(sndFolder, filePath.replace('sounds/', ''))
         const sndBuffer = await zip.file(filePath).async('nodebuffer')
         fs.writeFileSync(sndFilename, sndBuffer)
+      }
+    }
+
+    // copy images
+    const imgFiles = Object.keys(zip.files).filter(f => f.startsWith('images/') && !zip.files[f].dir)
+    if (imgFiles.length > 0) {
+      getOrCreatePath(folderName, 'raw-images', 'icons')
+      for (let filePath of imgFiles) {
+        const imgFilename = path.resolve(PROJECT_PATH, folderName, 'raw-images', filePath.replace('images/', ''))
+        const fileBuffer = await zip.file(filePath).async('nodebuffer')
+        fs.writeFileSync(imgFilename, fileBuffer)
       }
     }
 

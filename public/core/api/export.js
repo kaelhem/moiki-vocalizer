@@ -8,18 +8,11 @@ const uuid = require('uuid')
 const JSZip = require('jszip')
 
 const ffmpeg = require('./ffmpeg')
+const normalize = require('ffmpeg-normalize')
 
 let currentExportToken = null
 
 const exportToStudio = async (event, story) => {
-  exportStory(event, story, 'studio')
-}
-
-const exportToHtml = async (event, story) => {
-  exportStory(event, story, 'html')
-}
-
-const exportStory = async (event, story, format) => {
   currentExportToken = {
     cancelled: false
   }
@@ -223,21 +216,16 @@ const exportStory = async (event, story, format) => {
     event.sender.send('IPC_REDUX_MESSAGE', 'story-export-status', 4)
 
     let zip = new JSZip()
+    const studioConverter = require('./export-to-studio')
+    zip = studioConverter(moikiData, zip)
     
-    switch (format) {
-      case 'studio': {
-        const studioConverter = require('./export-to-studio')
-        zip = studioConverter(moikiData, zip)
-        break
-      }
-      default: {
-        const htmlConverter = require('./export-to-html')
-        zip = await htmlConverter(moikiData)
-      }
-    }
+    /* if html:
+    const htmlConverter = require('./export-to-html')
+    zip = await htmlConverter(moikiData)
+    */
 
-    const tempZipPath = path.join(DOWNLOADS_PATH, 'export-' + format + '-' + new Date().getTime() + '.zip')
-    await new Promise((resolve, reject) => {
+    const tempZipPath = path.join(DOWNLOADS_PATH, 'export-lunii-' + new Date().getTime() + '.zip')
+    await new Promise((resolve) => {
       zip.generateNodeStream({type:'nodebuffer', streamFiles:true})
         .pipe(fs.createWriteStream(tempZipPath))
         .on('finish', () => {
@@ -245,6 +233,81 @@ const exportStory = async (event, story, format) => {
         })
     })
 
+    event.sender.send('IPC_REDUX_MESSAGE', 'story-exported', null, tempZipPath)
+  } catch (e) {
+    event.sender.send('IPC_REDUX_MESSAGE', 'story-exported', e)
+  }
+}
+
+const exportToHtml = async (event, story) => {
+  try {
+    event.sender.send('IPC_REDUX_MESSAGE', 'story-export-status', 1)
+    const { projectInfo } = story
+    const sndFolder = path.join(PROJECT_PATH, projectInfo.folderName, 'sounds')
+    const sndFiles = fs.existsSync(sndFolder) ?
+      fs.readdirSync(sndFolder, { withFileTypes: true })
+        .filter(f => !f.isDirectory())
+        .map(f => f.name) : []//path.join(sndFolder, f.name)) : []
+    
+    if (sndFiles.length > 0) {
+      const tempPath = path.join(PROJECT_PATH, story.projectInfo.folderName, 'norm-sounds')
+      if (fs.existsSync(tempPath)) {
+        fsExtra.emptyDirSync(tempPath)
+      } else {
+        fs.mkdirSync(tempPath, {recursive: true})  
+      }
+      const numMp3files = sndFiles.filter(x => x.slice(-4) === '.mp3').length
+      let converted = 0
+      for (let file of sndFiles) {
+        if (file.slice(-4) === '.mp3') {
+          // reduce sounds volume
+          await new Promise((resolve, reject) => {
+            normalize({
+              input: path.join(sndFolder, file),
+              output: path.join(tempPath, file),
+              loudness: {
+                normalization: 'ebuR128',
+                target: {
+                  input_i: -36,
+                  input_lra: 7.0,
+                  input_tp: -2.0
+                }
+              },
+              verbose: process.env.NODE_ENV !== 'production'
+            })
+            .then(normalized  => {
+              console.log(normalized)
+              resolve()
+            })
+            .catch(error => {
+              console.log(error)
+              reject(error)
+              // Some error happened
+            })
+          })
+          event.sender.send('IPC_REDUX_MESSAGE', 'story-export-status', 1, converted + '/' + numMp3files)
+          ++converted
+        } else {
+          fs.copyFileSync(path.join(sndFolder, file), path.join(tempPath, file))
+        }
+      }
+    }
+
+    event.sender.send('IPC_REDUX_MESSAGE', 'story-export-status', 2)
+
+    const htmlConverter = require('./export-to-html')
+    const zip = await htmlConverter(story)
+
+    event.sender.send('IPC_REDUX_MESSAGE', 'story-export-status', 3)
+    
+    const tempZipPath = path.join(DOWNLOADS_PATH, 'export-html-' + new Date().getTime() + '.zip')
+    await new Promise((resolve) => {
+      zip.generateNodeStream({type:'nodebuffer', streamFiles:true})
+        .pipe(fs.createWriteStream(tempZipPath))
+        .on('finish', () => {
+          resolve()
+        })
+    })
     event.sender.send('IPC_REDUX_MESSAGE', 'story-exported', null, tempZipPath)
   } catch (e) {
     event.sender.send('IPC_REDUX_MESSAGE', 'story-exported', e)
