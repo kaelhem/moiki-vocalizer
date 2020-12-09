@@ -19,7 +19,6 @@ const Home = (props) => {
             <Divider horizontal>en bref</Divider>
             <ul style={{ margin: '2em auto', marginTop: 0, fontSize: '1.2em', lineHeight: '1.2em', listStyleType: 'none', padding: 0 }}>
               <li><span role="img" aria-label="Microphone">🎙️</span> enregistrements avec <b>micro</b> ou <b>synthèse vocale</b></li>
-              <li><span role="img" aria-label="Snowman">♻️</span> conservation des <b>actions</b> et <b>conditions</b></li>
               <li><span role="img" aria-label="Musique">🎵</span> conservation des <b>boucles</b> et <b>effets sonores</b></li>
               <li><span role="img" aria-label="Feu">🔥</span> export en html5</li>
               <li><span role="img" aria-label="Licorne">🦄</span> export vers <a href="https://github.com/marian-m12l/studio" target="_blank" rel="noopener noreferrer">STUdio</a>*</li>

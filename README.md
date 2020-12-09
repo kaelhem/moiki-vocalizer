@@ -7,7 +7,6 @@ Moiki Vocalizer est une application de bureau multiplateforme permettant de tran
 # Fonctionnalités
 
 + 🎙️ enregistrements avec micro ou synthèse vocale
-+ ♻️ conservation des actions et conditions
 + 🎵 conservation des boucles et effets sonores
 + 🔥 export en html5
 + 🦄 export vers STUdio

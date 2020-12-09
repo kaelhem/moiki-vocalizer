@@ -8,6 +8,7 @@ const fs = require('fs')
 const sharp = require('sharp')
 const JSZip = require('jszip')
 const kebabCase = require('lodash.kebabcase')
+const { migrate } = require('moiki-exporter')
 
 const cleanContent = (content) => content
   .replace(/(<\/*(strong|b)>)/gi, '')
@@ -71,7 +72,7 @@ const importStory = async (event, zipData) => {
         fileContent = fileContent.slice(0, -1)
       }
     }
-    const data = JSON.parse(fileContent)
+    const data = migrate(JSON.parse(fileContent))
     const folderName = kebabCase(data.meta.name) + '-' + new Date().getTime()
     const folderPath = getOrCreatePath(folderName)
 

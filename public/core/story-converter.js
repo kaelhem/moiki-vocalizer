@@ -9,19 +9,19 @@ const getSequenceKey = (id, objects) => id + ':' + objects.join('@')
 const getLinksForSequence = (sequence) => {
   const links = {}
   if (sequence.next) {
-    links[sequence.next] = { kind: 'simple', action: sequence.action }
+    links[sequence.next] = { kind: 'simple', action: sequence.actions && sequence.actions.length === 1 ? sequence.actions[0].params.target : null }
   }
-  if (sequence.condition && sequence.condition.next) {
-    links[sequence.condition.next] = { kind: 'simple', condition: sequence.condition.params }
+  if (sequence.conditions && sequence.conditions.length === 1 && sequence.conditions[0].next) {
+    links[sequence.conditions[0].next] = { kind: 'simple', condition: sequence.conditions[0].query.params[0].target }
   }
   if (sequence.choices && sequence.choices.length > 0) {
     let chIdx = 0
     for (let choice of sequence.choices) {
       if (choice.next) {
-        links[choice.next] = { kind: 'choice', choiceIndex: chIdx, action: choice.action }
+        links[choice.next] = { kind: 'choice', choiceIndex: chIdx, action: choice.actions && choice.actions.length === 1 ? choice.actions[0].params.target : null }
       }
-      if (choice.condition && choice.condition.next) {
-        links[choice.condition.next] = { kind: 'choice', choiceIndex: chIdx, condition: choice.condition.params }
+      if (choice.conditions && choice.conditions.length === 1 && choice.conditions[0].next) {
+        links[choice.conditions[0].next] = { kind: 'choice', choiceIndex: chIdx, condition: choice.conditions[0].query.params[0].target }
       }
       ++chIdx
     }
@@ -128,11 +128,11 @@ module.exports = (story) => {
     let objects = [...listObjects]
     let lastChain = null
     for (let ch of copySequence.chain) {
-      if (ch.action && ch.action.params) {
-        if (objects.includes(ch.action.params)) {
-          objects = objects.filter(x => x !== ch.action.params)
+      if (ch.actions && ch.actions.length === 1) {
+        if (objects.includes(ch.actions[0].params.target)) {
+          objects = objects.filter(x => x !== ch.actions[0].params.target)
         } else {
-          objects = [...objects, ch.action.params]
+          objects = [...objects, ch.actions[0].params.target]
         }
       }
       lastChain = ch
@@ -141,36 +141,39 @@ module.exports = (story) => {
 
     lastChain.listObjects = [...objects]
     if (lastChain.next) {
-      if (lastChain.condition && lastChain.condition.params && objects.includes(lastChain.condition.params)) {
-        lastChain.next = lastChain.condition.next
+      if (lastChain.conditions && lastChain.conditions.length === 1 && objects.includes(lastChain.conditions[0].query.params[0].target)) {
+        lastChain.next = lastChain.conditions[0].next
       }
-      if (lastChain.condition) {
-        delete lastChain.condition
+      if (lastChain.conditions) {
+        delete lastChain.conditions
       }
+      //console.log('here', lastChain.next, ': line 151')
       removeConditions(sequences.find(({id}) => id === lastChain.next), [...objects], [...storyPath], [...history])
     } else if (lastChain.choices && lastChain.choices.length > 0) {
       for (let choice of lastChain.choices) {
         let newObjects = [...objects]
-        if (choice.action && choice.action.params) {
-          if (objects.includes(choice.action.params)) {
-            newObjects = objects.filter(x => x !== choice.action.params)
+        if (choice.actions && choice.actions.length === 1) {
+          if (objects.includes(choice.actions[0].params.target)) {
+            newObjects = objects.filter(x => x !== choice.actions[0].params.target)
           } else {
-            newObjects = [...objects, choice.action.params]
+            newObjects = [...objects, choice.actions[0].params.target]
           }
         }
-        if (choice.condition && choice.condition.params && newObjects.includes(choice.condition.params)) {
-          choice.next = choice.condition.next
+        if (choice.conditions && choice.conditions.length === 1 && newObjects.includes(choice.conditions[0].query.params[0].target)) {
+          choice.next = choice.conditions[0].next
         }
-        if (choice.condition) {
-          delete choice.condition
+        if (choice.conditions) {
+          delete choice.conditions
         }
         choice.listObjects = [...newObjects]
+        //console.log('here', choice.next, ': line: 171', sequences.map(x => x.id).join(';'))
         removeConditions(sequences.find(({id}) => id === choice.next), [...newObjects], [...storyPath, 'CHOIX'], [...history])
       }
     } else {
       allPaths[storyPath.join(',')] = { data: history, path: storyPath }
     }
   }
+  //console.log('here', story.firstSequence, ': line 178')
   removeConditions(sequences.find(({id}) => id === story.firstSequence))
   
   const allPathsArray = Object.keys(allPaths)
@@ -190,7 +193,7 @@ module.exports = (story) => {
       let currentList = []
       for (let seq of listSeq) {
         currentList.push(seq)
-        if (seq.action) {
+        if (seq.actions && seq.actions.length === 1) { // seq.action ?????????
           allChains[currentList.join(',')] = true
           currentList = []
         }
@@ -235,11 +238,11 @@ module.exports = (story) => {
 
         let objects = [...lastChain.listObjects]
         for (let ch of linkSeq.chain) {
-          if (ch.action && ch.action.params) {
-            if (objects.includes(ch.action.params)) {
-              objects = objects.filter(x => x !== ch.action.params)
+          if (ch.actions && ch.actions.length === 1) {
+            if (objects.includes(ch.actions[0].params.target)) {
+              objects = objects.filter(x => x !== ch.actions[0].params.target)
             } else {
-              objects.push(ch.action.params)
+              objects.push(ch.actions[0].params.target)
             }
           }
         }

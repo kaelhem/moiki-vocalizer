@@ -10,15 +10,18 @@ const listStatus = {
     message: 'Transforme le graphe de l\'histoire en arbre linéaire'
   }, {
     status: 1,
-    message: 'Combine les enregistrements et les effets sonores'
+    message: 'Réduit le volume des boucles et effets sonores'
   }, {
     status: 2,
-    message: 'Assemble les enregistrements par sequences'
+    message: 'Combine les enregistrements et les effets sonores'
   }, {
     status: 3,
-    message: 'Combine les enregistrements et les boucles sonores'
+    message: 'Assemble les enregistrements par sequences'
   }, {
     status: 4,
+    message: 'Combine les enregistrements et les boucles sonores'
+  }, {
+    status: 5,
     message: 'Exporte l\'archive au format .zip'
   }],
   html: [
