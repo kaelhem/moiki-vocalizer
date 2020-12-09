@@ -43,6 +43,7 @@ const listStatus = {
 
 const ExportModal = (props) => {
   const {
+    story,
     exportToStudio,
     exportToHtml,
     onClose,
@@ -140,13 +141,18 @@ const ExportModal = (props) => {
             </Fragment>
           ) : (
             <Fragment>
+              {!story.meta.simplified && (
+                <div style={{ textAlign: 'center', fontStyle: 'italic' }}>
+                  Pour pouvoir exporter votre histoire au format Lunii vous devez créer celle-ci en mode simplifié !
+                </div>
+              )}
               <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', margin: '1em 0' }}>
                 <Button className='button-with-image' primary onClick={ exportHtml }>
                   <div style={{fontSize: '1.2em', fontWeight: 'bold' }}>Export HTML5</div>
                   <Image src={'assets/html5-icon.png'} />
                   <div><em>pour que ça marche dans un navigateur web</em></div>
                 </Button>
-                <Button style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }} className='button-with-image' primary onClick={ exportLunii }>
+                <Button disabled={!story.meta.simplified} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }} className='button-with-image' primary onClick={ exportLunii }>
                   <div style={{fontSize: '1.2em', fontWeight: 'bold' }}>Export STUdio</div>
                   <div style={{ flexGrow: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <Image src={'assets/lunii-icon.png'} />
@@ -168,7 +174,8 @@ const ExportModal = (props) => {
 
 const mapStateToProps = (state) => ({
   pendingExport: state.story.pendingExport,
-  exportPath: state.story.exportPath
+  exportPath: state.story.exportPath,
+  story: state.story.story
 })
 
 const mapDispatchToProps = (dispatch) => ({
