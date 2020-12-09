@@ -8644,10 +8644,10 @@ modify-filename@^1.1.0:
   resolved "https://registry.yarnpkg.com/modify-filename/-/modify-filename-1.1.0.tgz#9a2dec83806fbb2d975f22beec859ca26b393aa1"
   integrity sha1-mi3sg4Bvuy2XXyK+7IWcoms5OqE=
 
-moiki-exporter@^2.0.2:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/moiki-exporter/-/moiki-exporter-2.0.2.tgz#933eb560d3e9c65ca762de4dcd43f9549f3004bb"
-  integrity sha512-vy97KTgZZ7ZeAnXcgYcrWxQrJ0PceY4bjjFDy+bgtz4CTcge5LCRLiNmspDhJpynzQ/iLhMbeG/T8CqoReXx5g==
+moiki-exporter@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/moiki-exporter/-/moiki-exporter-2.0.3.tgz#191143fb52095dfabd79b82543f77b10fc7d5dac"
+  integrity sha512-11chv7wpR+QWx5wLQncyPtJ4BnqD+K0SkzwI/r4GYZWKNtWVSGr7i6rYirqE5YZULKjOgbcomOULsaA352Hnsg==
   dependencies:
     lodash.kebabcase "^4.1.1"
     uuid "^7.0.2"

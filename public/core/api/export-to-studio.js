@@ -17,7 +17,7 @@ module.exports = (moikiData, zip) => {
   // copy moiki logo
   zip.file('assets/cover.png', fs.readFileSync(path.join(__dirname, '..', '..', 'assets', 'moiki-logo-studio.png')))
   // copy question images
-  const questions = ['1-2', '2-2', '1-3', '2-3', '3-3']
+  const questions = ['1-2', '2-2', '1-3', '2-3', '3-3', '1-4', '2-4', '3-4', '4-4']
   for (let q of questions) {
     zip.file('assets/question_' + q + '.png', fs.readFileSync(path.join(__dirname, '..', '..', 'assets', 'question-' + q + '.png')))
   }
