@@ -39,7 +39,7 @@ const normalizeStorySounds = async (event, story, exportStep = 1) => {
               loudness: {
                 normalization: 'ebuR128',
                 target: {
-                  input_i: -36,
+                  input_i: -50,
                   input_lra: 7.0,
                   input_tp: -2.0
                 }
@@ -76,7 +76,7 @@ const exportToStudio = async (event, story) => {
   try {
     const { sequencesDescriptor, uuidSequencesMap, sequences, variables } = storyConverter(story)
 
-    const tempMergePath = path.join(PROJECT_PATH, story.projectInfo.folderName, 'temp-merge', 'sounds')
+    const tempMergePath = path.join(PROJECT_PATH, story.projectInfo.folderName, 'temp-merge', 'norm-sounds')
     if (fs.existsSync(tempMergePath)) {
       fsExtra.emptyDirSync(tempMergePath)
     } else {
@@ -218,8 +218,7 @@ const exportToStudio = async (event, story) => {
             }
             const loopPath = path.join(tempMergePath, '..', loop.file)
             const duration = loop.to - loop.from
-            console.log(loop.file)
-            await new Promise(resolve => ffmpeg.extractSound(path.join(PROJECT_PATH, story.projectInfo.folderName, loop.file), 0, duration, loopPath, resolve))        
+            await new Promise(resolve => ffmpeg.extractSound(path.join(PROJECT_PATH, story.projectInfo.folderName, loop.file), 0, duration, loopPath, resolve))
             await new Promise(resolve => ffmpeg.mergeSoundsWithDelay(filePath, loopPath, finalFilePath, Math.round(loop.from * 1000), resolve))
             fs.copyFileSync(finalFilePath, filePath)
           }
