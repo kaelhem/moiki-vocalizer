@@ -8,7 +8,7 @@ const uuid = require('uuid')
 const JSZip = require('jszip')
 
 const ffmpeg = require('./ffmpeg')
-const normalize = require('ffmpeg-normalize')
+const { normalize } = require('./ffmpeg-normalize')
 
 let currentExportToken = null
 

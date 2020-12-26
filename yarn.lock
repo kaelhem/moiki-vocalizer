@@ -5685,24 +5685,6 @@ ffbinaries@^1.1.4:
     lodash "^4.17.15"
     request "^2.88.0"
 
-ffmpeg-normalize@^1.8.0:
-  version "1.8.0"
-  resolved "https://registry.yarnpkg.com/ffmpeg-normalize/-/ffmpeg-normalize-1.8.0.tgz#a8f447ef21264519ed673abdc60f64d834a9aa8c"
-  integrity sha512-t1Hf4Ix0iH7cPeNf//8k6XrCTUr1XN1dL1trxK5GnD5wyHRTXufQWQcO8bcT8VFiLltDJ0av7s/bauTWlLy1dA==
-  dependencies:
-    ffmpeg-static "2.5.0"
-    ffprobe-static "^3.0.0"
-
-ffmpeg-static@2.5.0:
-  version "2.5.0"
-  resolved "https://registry.yarnpkg.com/ffmpeg-static/-/ffmpeg-static-2.5.0.tgz#310fbd7f55bcb55d6dec04eb96dc0953851f5076"
-  integrity sha512-4HI5aUFq9As3vNOm/0p4Pj47D8AxUqg0qnzaOuXwFMQ6uYhaLXGneUX/8b3C6gbU4ljASI+Ne7WKHpYFnLtK3A==
-
-ffprobe-static@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/ffprobe-static/-/ffprobe-static-3.0.0.tgz#479689c8a237987beca5627968f3d87429bf569d"
-  integrity sha512-LZ1Sj4RHS95t/ReZtRbCmMEWDDl7cfIMwmhNgCZcdtOgRlAHaGGOupoc166Q9AV+T7lXnUvu5HYczcsn69c6fw==
-
 figgy-pudding@^3.5.1:
   version "3.5.2"
   resolved "https://registry.yarnpkg.com/figgy-pudding/-/figgy-pudding-3.5.2.tgz#b4eee8148abb01dcf1d1ac34367d59e12fa61d6e"
