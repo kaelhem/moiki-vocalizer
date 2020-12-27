@@ -2,7 +2,7 @@ const path = require('path')
 const fs = require('fs')
 const { PROJECT_PATH } = require('../constants')
 const JSZip = require('jszip')
-
+const { migrate } = require('moiki-exporter')
 
 //const vocalsFolder = path.join(PROJECT_PATH, story.projectInfo.folderName, 'vocals')
 
@@ -77,8 +77,8 @@ module.exports = async (moikiData) => {
           
           const storyDataPath = path.join(PROJECT_PATH, projectInfo.folderName, 'raw-data.json')
           const storyData = fs.readFileSync(storyDataPath, 'utf8')
-          zip.file('data.js', 'var moiki_story = ' + storyData + ';')
-
+          const convertedStory = migrate(JSON.parse(storyData))
+          zip.file('data.js', 'var moiki_story = ' + JSON.stringify(convertedStory, null, 4) + ';')
           resolve(zip)
         } catch(e) {
           console.log(e)

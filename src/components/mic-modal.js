@@ -6,8 +6,9 @@ import { ReactMic } from '@matuschek/react-mic'
 import SpeechSynthesisRecorder from 'libs/speech-synthesis-recorder'
 import { AudioPlayerProvider } from 'react-use-audio-player'
 import AudioPlayer from 'components/audio-player'
-import { Button, Modal, Label, Image, Header, List, Popup } from 'semantic-ui-react'
+import { Button, Modal, Label, Image, Header, List, Popup, Icon } from 'semantic-ui-react'
 import moment from 'moment'
+import { ControlsShortcuts } from './mic-modal-shortcuts'
 import './sequence-vocalizer.css'
 
 let cancelled = false
@@ -183,6 +184,20 @@ const MicModal = (props) => {
 
   return (
     <Modal open={true} className="mic-modal">
+      <ControlsShortcuts
+        onPrevious={() => (hasPrevious && !isRecording && !isConverting) && onLoadPreviousSequence()}
+        onNext={() => (hasNext && !isRecording && !isConverting) && onLoadNextSequence()}
+        onToggleRec={() => {
+          if (isConverting) {
+            return
+          }
+          if (isRecording) {
+            isSpeechSynthesis ? stopSpeech() : setIsRecording(false)
+          } else {
+            onVocalStart()
+          }
+        }}
+      />
       <Modal.Header style={{ background: '#4c77ac', color: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', width: 320 }}>
           <Label style={{ marginRight: 10 }} content={<span style={{ fontSize: '1.5em' }}>{ sequence.id }</span>} />
@@ -272,11 +287,19 @@ const MicModal = (props) => {
         </div>
       </Modal.Content>
       <Modal.Actions>
-        <Button
-          id='modal-cancel-button'
-          onClick={ onClose }
-          disabled={ isRecording || isConverting || isPlaying }
-        >Fermer</Button>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <div style={{ fontStyle: 'italic', textAlign: 'left' }}>
+            <div style={{ fontWeight: 'bold' }}>Raccourcis clavier :&nbsp;</div>
+            <Label size='tiny'><Icon fitted name='arrow left' /></Label> Précédent,{' '}
+            <Label size='tiny'><Icon fitted name='arrow right' /></Label> Suivant,{' '}
+            <Label size='tiny'>Espace</Label> Commencer / Arrêter l'enregistrement
+          </div>
+          <Button
+            id='modal-cancel-button'
+            onClick={ onClose }
+            disabled={ isRecording || isConverting || isPlaying }
+          >Fermer</Button>
+        </div>
       </Modal.Actions>
     </Modal>
   )

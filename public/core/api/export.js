@@ -39,7 +39,7 @@ const normalizeStorySounds = async (event, story, exportStep = 1) => {
               loudness: {
                 normalization: 'ebuR128',
                 target: {
-                  input_i: -50,
+                  input_i: -45,
                   input_lra: 7.0,
                   input_tp: -2.0
                 }
