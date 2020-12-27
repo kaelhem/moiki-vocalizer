@@ -3,9 +3,11 @@ const path = require('path')
 const fs = require('fs')
 const { PROJECT_PATH } = require('../constants')
 const kebabCase = require('lodash.kebabcase')
+const { migrate } = require('moiki-exporter')
 
 module.exports = (moikiData, zip) => {
-  const { story, descriptor, paths } = moikiData
+  const { descriptor, paths } = moikiData
+  const story = migrate(moikiData.story)
   const { finalMergePath, objectSfxPath } = paths
   const studioData = createJson(story, descriptor)
   zip.file('story.json', JSON.stringify(studioData, null, 4))
