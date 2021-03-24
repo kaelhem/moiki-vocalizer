@@ -68,8 +68,8 @@ yarn dev
 # or
 npm run dev
 
-# release build (note: changer au préalable la plateforme cible dans la partie scripts du fichier package.json => "electron-pack": "electron-builder build -[xxx]" où xxx est m (mac), w (windows) ou l (linux).
-yarn electron-pack
+# release build (note: chaque build est spécifique à la plateforme sur laquelle il est effectué. Remplacez "xxx" par "mac", "win", ou "linux" selon la plateforme).
+yarn electron-pack-xxx
 # or
-npm run electron-pack
+npm run electron-pack-xxx
 ```
