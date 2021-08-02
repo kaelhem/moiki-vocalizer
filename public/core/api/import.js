@@ -105,6 +105,7 @@ const importStory = async (event, zipData) => {
     const imgFiles = Object.keys(zip.files).filter(f => f.startsWith('images/') && !zip.files[f].dir)
     if (imgFiles.length > 0) {
       getOrCreatePath(folderName, 'raw-images', 'icons')
+      getOrCreatePath(folderName, 'raw-images', 'content')
       for (let filePath of imgFiles) {
         const imgFilename = path.resolve(PROJECT_PATH, folderName, 'raw-images', filePath.replace('images/', ''))
         const fileBuffer = await zip.file(filePath).async('nodebuffer')
