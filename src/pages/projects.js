@@ -22,7 +22,7 @@ const Projects = (props) => {
 
   useEffect(() => {
     getList()
-  }, [])
+  }, [getList])
 
   console.log(projects)
 

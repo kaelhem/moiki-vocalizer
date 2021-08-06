@@ -11,6 +11,7 @@ export function *listSaga() {
     if (error) {
       throw error
     }
+    console.log(error)
     yield put(projectsMessages.listSuccess(projects))
   } catch (e) {
     yield put(projectsMessages.listError(e))

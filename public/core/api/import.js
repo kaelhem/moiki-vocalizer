@@ -8,7 +8,7 @@ const fs = require('fs')
 const sharp = require('sharp')
 const JSZip = require('jszip')
 const kebabCase = require('lodash.kebabcase')
-const { migrate } = require('moiki-exporter')
+const { migrate } = require('../utils/migrate')
 
 const cleanContent = (content) => content
   .replace(/(<\/*(strong|b)>)/gi, '')
@@ -105,10 +105,25 @@ const importStory = async (event, zipData) => {
     const imgFiles = Object.keys(zip.files).filter(f => f.startsWith('images/') && !zip.files[f].dir)
     if (imgFiles.length > 0) {
       getOrCreatePath(folderName, 'raw-images', 'icons')
+      getOrCreatePath(folderName, 'raw-images', 'content')
       for (let filePath of imgFiles) {
         const imgFilename = path.resolve(PROJECT_PATH, folderName, 'raw-images', filePath.replace('images/', ''))
         const fileBuffer = await zip.file(filePath).async('nodebuffer')
         fs.writeFileSync(imgFilename, fileBuffer)
+      }
+    }
+
+    // copy fonts
+    const fontFolders = Object.keys(zip.files).filter(f => f.startsWith('fonts/') && zip.files[f].dir)
+    for (let fontFolder of fontFolders) {
+      getOrCreatePath(folderName, fontFolder)
+    }
+    const fontFiles = Object.keys(zip.files).filter(f => f.startsWith('fonts/') && !zip.files[f].dir)
+    if (fontFiles.length > 0) {
+      for (let filePath of fontFiles) {
+        const fontFilename = path.resolve(PROJECT_PATH, folderName, 'fonts', filePath.replace('fonts/', ''))
+        const fileBuffer = await zip.file(filePath).async('nodebuffer')
+        fs.writeFileSync(fontFilename, fileBuffer)
       }
     }
 
@@ -125,10 +140,14 @@ const importStory = async (event, zipData) => {
       content: 'Moiki présente : ' + data.meta.name
     }]
     sequences.forEach(seq => {
-      nodes.push({id: seq.id, content: seq.content})
+      if (seq.content) {
+        nodes.push({id: seq.id, content: seq.content})
+      }
       if (seq.choices && seq.choices.length > 0) {
         seq.choices.forEach((ch, idx) => {
-          nodes.push({id: seq.id + '_chx-' + idx, content: ch.content})
+          if (ch.content) {
+            nodes.push({id: seq.id + '_chx-' + idx, content: ch.content})
+          }
         })
       }
     })

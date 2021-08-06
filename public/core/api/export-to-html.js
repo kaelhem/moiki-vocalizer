@@ -2,9 +2,8 @@ const path = require('path')
 const fs = require('fs')
 const { PROJECT_PATH } = require('../constants')
 const JSZip = require('jszip')
-const { migrate } = require('moiki-exporter')
-
-//const vocalsFolder = path.join(PROJECT_PATH, story.projectInfo.folderName, 'vocals')
+const { migrate } = require('../utils/migrate')
+const glob = require('glob')
 
 module.exports = async (moikiData) => {
   const { meta, projectInfo } = moikiData
@@ -54,6 +53,25 @@ module.exports = async (moikiData) => {
             zip.file('sounds/' + file, fs.readFileSync(path.join(sndFolder, file)))
           }
 
+          // copy fonts
+          const fontsFolder = path.join(PROJECT_PATH, projectInfo.folderName, 'fonts')
+          let fontsFiles = []
+          const files = glob.sync(fontsFolder + '/**/*', null)
+          if (files.length > 0) {
+            fontsFiles = files.sort((a,b) => a.length - b.length)
+          }            
+          zip.folder('fonts')
+          for (let f of fontsFiles) {
+            if (fs.lstatSync(f).isDirectory()) {
+              zip.folder(f.replace(fontsFolder, 'fonts'))
+            }
+          }
+          for (let f of fontsFiles) {
+            if (!fs.lstatSync(f).isDirectory()) {
+              zip.file(f.replace(fontsFolder, 'fonts'), fs.readFileSync(f))
+            }
+          }
+
           // copy images
           const imgFolder = path.join(PROJECT_PATH, projectInfo.folderName, 'raw-images')
           const imgFiles = fs.existsSync(imgFolder) ?
@@ -73,6 +91,17 @@ module.exports = async (moikiData) => {
           zip.folder('images/icons')
           for (let file of iconFiles) {
             zip.file('images/icons/' + file, fs.readFileSync(path.join(iconsFolder, file)))
+          }
+
+          const contentImgFolder = path.join(PROJECT_PATH, projectInfo.folderName, 'raw-images', 'content')
+          console.log(contentImgFolder)
+          const contentImgFiles = fs.existsSync(contentImgFolder) ?
+            fs.readdirSync(contentImgFolder, { withFileTypes: true })
+              .filter(f => !f.isDirectory())
+              .map(f => f.name) : []
+          zip.folder('images/content')
+          for (let file of contentImgFiles) {
+            zip.file('images/content/' + file, fs.readFileSync(path.join(contentImgFolder, file)))
           }
           
           const storyDataPath = path.join(PROJECT_PATH, projectInfo.folderName, 'raw-data.json')
