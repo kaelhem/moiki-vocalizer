@@ -1,12 +1,37 @@
-import React, { useEffect, Fragment } from 'react'
+import React, { useEffect, Fragment, useState } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { actions as storyActions } from 'core/reducers/story'
 import { actions as projectsActions } from 'core/reducers/projects'
-import { Segment, Loader, Header, Card, Icon, Image, Label } from 'semantic-ui-react'
+import { Segment, Loader, Header, Card, Icon, Image, Label, Button, Popup, List, Confirm } from 'semantic-ui-react'
 import Dropzone from 'components/dropzone'
 import moment from 'moment'
 import './projects.css'
+
+const ProjectMenu = (props) => {
+
+  const [isOpen, setIsOpen] = useState(false)
+
+  const onRemove = () => {
+    setIsOpen(false)
+    props.onRemove()
+  }
+
+  return (
+    <Popup
+      on='click'
+      open={isOpen}
+      onOpen={() => setIsOpen(true)}
+      onClose={() => setIsOpen(false)}
+      position='bottom right'
+      trigger={<Button circular icon='setting' style={{ position: 'absolute', right: 5, top: 5, width: 40, background: 'rgba(255,255,255,.5)' }} />}
+    >
+      <List selection position='bottom' verticalAlign='middle'>
+        <List.Item value={'REMOVE_PROJECT'} onClick={onRemove} content={'Supprimer ce projet...'} />
+      </List>
+    </Popup>
+  )
+}
 
 const Projects = (props) => {
   const {
@@ -17,14 +42,32 @@ const Projects = (props) => {
     importPending,
     importError,
     importStory,
-    loadStory
+    loadStory,
+    removeProject
   } = props
+
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false)
+  const [projectToDelete, setProjectToDelete] = useState(null)
 
   useEffect(() => {
     getList()
   }, [getList])
 
-  console.log(projects)
+  const removeProjectHandler = (project) => {
+    setProjectToDelete(project)
+    setShowConfirmDelete(true)
+  }
+
+  const handleConfirmDelete = () => {
+    // TODO
+    removeProject(projectToDelete)
+    handleCloseConfirm()
+  }
+
+  const handleCloseConfirm = () => {
+    setProjectToDelete(null)
+    setShowConfirmDelete(false)
+  }
 
   return (
     <Fragment>
@@ -60,19 +103,22 @@ const Projects = (props) => {
           ) : (
             <div style={{ justifyContent: 'center', display: 'flex', flexWrap: 'wrap' }}>
               { projects && projects.length > 0 ? projects.map((project, idx) => (
-                <Card key={'project-' + idx} className="project-card" onClick={() => loadStory(project.folderName)}>
+                <Card key={'project-' + idx} className="project-card">
                   { project.cover ? (
-                    <Image style={{maxHeight: 225, overflow: 'hidden'}} wrapped ui={false}>
+                    <Image onClick={() => loadStory(project.folderName)} style={{maxHeight: 225, overflow: 'hidden', cursor: 'pointer'}} wrapped ui={false}>
                       <div className='cover' style={{ backgroundImage: 'url(' + project.cover + ')' }} />
                     </Image>
                   ) : (
-                    <Image src={'/assets/image-wireframe.png'} wrapped ui={false} style={{ height: 225, display: 'flex' }} />
+                    <Image onClick={() => loadStory(project.folderName)} src={'/assets/image-wireframe.png'} wrapped ui={false} style={{ height: 225, display: 'flex', cursor: 'pointer' }} />
                   )}
                   { project.numNodes === project.numVocalized && (
                     <Label ribbon color='green' style={{ position: 'absolute', left: -14, top: 10 }}>
                       <Icon name='check' /> fini !
                     </Label>
                   )}
+                  <ProjectMenu
+                    onRemove={() => removeProjectHandler(project)}
+                  />
                   <Card.Content extra header={project.title} />
                   <Card.Content extra>
                     <div><Icon name='calendar alternate' /> créée {moment(project.creationDate).fromNow()}</div>
@@ -88,6 +134,16 @@ const Projects = (props) => {
           )}
         </div>
       </div>
+      <Confirm
+        size='tiny'
+        header={`Etes-vous sur de vouloir supprimer ce projet ?`}
+        content={`Une fois cette action effectuée, il ne sera pas possible de revenir en arrière !`}
+        cancelButton='Annuler'
+        confirmButton={<Button negative>Continuer</Button>}
+        open={showConfirmDelete}
+        onCancel={handleCloseConfirm}
+        onConfirm={handleConfirmDelete}
+      />
     </Fragment>
   )
 }
@@ -102,6 +158,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
   getList: bindActionCreators(projectsActions.getList, dispatch),
+  removeProject: bindActionCreators(projectsActions.remove, dispatch),
   importStory: bindActionCreators(storyActions.import, dispatch),
   loadStory: bindActionCreators(storyActions.load, dispatch)
 })

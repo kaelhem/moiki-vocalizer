@@ -1,5 +1,6 @@
 const { ipcMain: ipc } = require('electron')
 const fs = require('fs')
+const fsExtra = require('fs-extra')
 const path = require('path')
 const { PROJECT_PATH } = require('../constants')
 
@@ -83,10 +84,17 @@ const loadSound = (event, folderName, fileName) => {
   }
 }
 
+const removeProject = (event, project) => {
+  const dir = path.join(PROJECT_PATH, project.folderName)
+  fsExtra.removeSync(dir)
+  event.sender.send('IPC_REDUX_MESSAGE', 'project-removed', null, dir)
+}
+
 const init = () => {
   ipc.on('get-projects-list', list)
   ipc.on('load-project', load)
   ipc.on('load-sound-file', loadSound)
+  ipc.on('remove-project', removeProject)
 }
 
 module.exports = {
